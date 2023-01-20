@@ -27,6 +27,7 @@
     "pinia": "^2.0.14",
     "plausible-tracker": "^0.3.8",
     "quasar": "^2.6.0",
+    "vercel": "^28.13.0",
     "vue": "^3.0.0",
     "vue-apollo": "^3.1.0",
     "vue-chartjs": "^4.1.1",
