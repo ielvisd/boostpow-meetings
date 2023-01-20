@@ -116,23 +116,6 @@ const linksList = [
 
 import { defineComponent, ref } from "vue";
 import { useRelayUserStore } from "../stores/relayUser.js";
-import { useBaconDataStore } from "../stores/bacon.js";
-import { useBananaDataStore } from "src/stores/bananas";
-import { useBreadDataStore } from "src/stores/bread";
-import { useBSVDataStore } from "src/stores/bsvData";
-import { useChickenDataStore } from "src/stores/chicken";
-import { useCoffeeDataStore } from "src/stores/coffee";
-import { useEggDataStore } from "src/stores/eggs";
-import { useElectricityDataStore } from "src/stores/electricity";
-import { useFlourDataStore } from "src/stores/flour";
-import { useFuelOilDataStore } from "src/stores/fuelOil";
-import { useGasolineAllTypesDataStore } from "src/stores/gasolineAll";
-import { useGasolineUnleadedDataStore } from "src/stores/gasolineUnleaded";
-import { useGopnikzStore } from "src/stores/gopnikz";
-import { useMilkDataStore } from "src/stores/milk";
-import { useOrangeDataStore } from "src/stores/oranges";
-import { useRiceDataStore } from "src/stores/rice";
-import { useTomatoesDataStore } from "src/stores/tomatoes";
 
 export default defineComponent({
   name: "HomeLayout",
