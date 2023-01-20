@@ -1,6 +1,4 @@
 import { acceptHMRUpdate, defineStore } from "pinia";
-// import { useMyGopsStore } from '../stores/myGops'
-// import { useMyCompanionsStore } from './myCompanions'
 
 export const useRelayUserStore = defineStore({
   id: "useRelayUserStore",
@@ -9,18 +7,9 @@ export const useRelayUserStore = defineStore({
     user: JSON.parse(localStorage.getItem("user")),
     loggedIn: false,
     returnUrl: null,
-    searchedGopOrders: [],
-    searchedGopBag: [],
     loading: false,
     paymail: null,
-    gopnikz: [],
-    myCompanions: [],
-    companionOptions: [],
-    gopnikOptions: [],
-    preorders: [],
-    preorderOptions: [],
-    confirmedPreorders: [],
-    metagopPreorders: [],
+    powcoTokens: null,
   }),
   actions: {
     toggleLoading() {
@@ -29,31 +18,9 @@ export const useRelayUserStore = defineStore({
     gopUrl(gopBerryTxId) {
       return `https://berry.relayx.com/${gopBerryTxId}`;
     },
-    getGopnikOptions() {
-      this.gopnikOptions = [];
-      this.gopnikz.forEach((gopnik) => {
-        this.gopnikOptions.push({
-          value: gopnik.props.no,
-          name: `Gopnik # ${gopnik.props.no}`,
-          image: this.gopUrl(gopnik.berry.txid),
-        });
-      });
-    },
-    getCompanionOptions() {
-      this.companionOptions = [];
-      this.myCompanions.forEach((companion) => {
-        this.companionOptions.push({
-          value: companion.props.no,
-          name: `Companion # ${companion.props.no}`,
-          image: this.gopUrl(companion.berry.txid),
-        });
-      });
-    },
     async setJigs(ownerAddress) {
-      const gopnikContractId =
-        "1ba1080086ca6624851e1fbff18d903047f2b75d3a9ffe5cc8bf49ed0fdb36a0_o2";
-      const companionsContractId =
-        "880b9e67a2303c08845caa3a11804a0674b293d8d665b9f45938cea3eb216883_o2";
+      const powTokenContractID =
+        "93f9f188f93f446f6b2d93b0ff7203f96473e39ad0f58eb02663896b53c4f020_o2";
       this.loading = true;
       if (!ownerAddress) return;
 
@@ -61,25 +28,10 @@ export const useRelayUserStore = defineStore({
         `https://staging-backend.relayx.com/api/user/balance2/${ownerAddress}`
       );
       const response_data = await walletJSON.json();
-      const collectibles = response_data.data.collectibles;
+      // const collectibles = response_data.data.collectibles;
       const balances = response_data.data.balances;
-      // TODO: This is going to take a long time with multiple collections. Figure out how to separate these calls per page instead of doing them all at login
-      // NOTE: Set OG Gopnikz
-      const ogGops = collectibles.filter(
-        (collectible) => collectible.origin === gopnikContractId
-      );
-      this.gopnikz = ogGops.sort((a, b) => (a.props.no > b.props.no ? 1 : -1));
-      this.getGopnikOptions();
-
-      // NOTE: Set Companions
-      // const companions = collectibles.filter(
-      //     collectible =>
-      //         collectible.origin
-      //         === companionsContractId,
-      // )
-      // this.myCompanions = companions.sort((a, b) => (a.props.no > b.props.no) ? 1 : -1)
-      // this.getCompanionOptions()
-
+      console.log("balances are: ", balances);
+      this.powcoTokens = balances[powTokenContractID];
       this.loading = false;
     },
     async getRunOwner() {
@@ -96,8 +48,6 @@ export const useRelayUserStore = defineStore({
       this.setJigs(ownerResponse);
     },
     async login() {
-      // const myGopsStore = useMyGopsStore()
-      // const myCompanionsStore = useMyCompanionsStore()
       this.loading = true;
       const token = await relayone.authBeta();
       const [payload, singature] = token.split(".");
@@ -106,9 +56,6 @@ export const useRelayUserStore = defineStore({
       this.paymail = data.paymail;
       this.loggedIn = true;
       await this.getRunOwner();
-      // TODO: This is going to take a long time with multiple collections. Figure out how to separate these calls per page instead of doing them all at login
-      // myGopsStore.findGops()
-      // myCompanionsStore.findGops()
     },
     logout() {
       this.loading = true;
