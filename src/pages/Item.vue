@@ -5,7 +5,7 @@
       style="max-width: 760px"
     >
       <h6 class="text-body1 my-0 mt-8">
-        The BoostPOW Daily meetingss (SPI) is a measure of the average change
+        The BoostPOW Daily meetings (SPI) is a measure of the average change
         over time in prices paid by urban consumers for a market basket of goods
         and services. SPI tracks the market basket priced in
         <span class="text-italic">satoshis*</span>.

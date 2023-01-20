@@ -1,8 +1,8 @@
 {
-  "name": "boostpow-daily-meetingss",
+  "name": "boostpow-daily-meetings",
   "version": "0.0.1",
-  "description": "BoostPOW Daily meetingss",
-  "productName": "BoostPOW Daily meetingss",
+  "description": "BoostPOW Daily meetings",
+  "productName": "BoostPOW Daily meetings",
   "author": "Elvis Ibarra <ielvisd@gmail.com>",
   "private": true,
   "scripts": {

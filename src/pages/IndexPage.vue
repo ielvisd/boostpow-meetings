@@ -39,7 +39,6 @@ import { useElectricityDataStore } from "src/stores/electricity";
 import { useFuelOilDataStore } from "src/stores/fuelOil";
 import { useGasolineAllTypesDataStore } from "src/stores/gasolineAll";
 import { useGasolineUnleadedDataStore } from "src/stores/gasolineUnleaded";
-import NFTCard from "src/components/NFTCard.vue";
 import { useGopnikzStore } from "src/stores/gopnikz";
 import YouTube from "vue3-youtube";
 

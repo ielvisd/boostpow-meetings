@@ -10,7 +10,7 @@ export default {
     app.provide("plausible");
 
     const plausibleOptions = {
-      domain: "boostpowdailymeetingss.com", // Update for your site
+      domain: "boostpowdailymeetings.com", // Update for your site
       hashMode: true,
       trackLocalhost: false,
     };

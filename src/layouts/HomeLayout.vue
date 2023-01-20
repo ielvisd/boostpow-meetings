@@ -14,19 +14,12 @@
 
         <q-toolbar-title class="text-white antebBold flex items-center">
           <i class="fak fa-satoshisymbol-solidcirtilt" />
-          <p text-base md:text-xl m-0 ml-2 pt-1>BoostPOW Daily meetingss</p>
+          <p text-base md:text-xl m-0 ml-2 pt-1>BoostPOW Daily meetings</p>
         </q-toolbar-title>
         <DarkSwitcher />
 
         <q-tabs v-if="$q.platform.is.desktop" antebBold v-model="tab">
           <q-route-tab to="/" exact name="home" label="Home" />
-          <q-route-tab
-            to="/tools/DCA-Calculator"
-            exact
-            name="DCA-Calculator"
-            label="Tools"
-          />
-          <q-route-tab name="features" label="Features" to="/features" exact />
         </q-tabs>
         <div flex items-center justify-center>
           <div
@@ -102,19 +95,19 @@ import { useQuasar } from "quasar";
 
 const linksList = [
   {
-    title: "BoostPOW Daily meetingssing @RelayX",
-    caption: "Official BoostPOW Daily meetingss Relay Page",
+    title: "BoostPOW Daily meetingsing @RelayX",
+    caption: "Official BoostPOW Daily meetings Relay Page",
     icon: "🐟",
     link: "https://relayx.com/1satoshipriceindex",
   },
   {
-    title: "BoostPOW Daily meetingss Twetch",
+    title: "BoostPOW Daily meetings Twetch",
     caption: "Follow us on twetch",
     icon: "🧢",
     link: "https://twetch.com/u/80571",
   },
   {
-    title: "BoostPOW Daily meetingss Twitter",
+    title: "BoostPOW Daily meetings Twitter",
     caption: "Follow us on Twitter",
     icon: "🐦",
     link: "https://twitter.com/satspriceindex",
