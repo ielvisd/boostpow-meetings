@@ -1,0 +1,10 @@
+// app global css in SCSS form
+@font-face {
+  font-family: antebBold;
+  src: url(./fonts/AntebBold.otf);
+}
+
+// declare a class which applies it
+.antebBold {
+  font-family: "antebBold";
+}

@@ -1,0 +1,57 @@
+{
+  "name": "boostpow-daily-meetingss",
+  "version": "0.0.1",
+  "description": "BoostPOW Daily meetingss",
+  "productName": "BoostPOW Daily meetingss",
+  "author": "Elvis Ibarra <ielvisd@gmail.com>",
+  "private": true,
+  "scripts": {
+    "dev": "quasar dev",
+    "build": "quasar build",
+    "deploy": "vercel",
+    "build:pwa": "quasar build -m pwa",
+    "lint": "eslint --ext .js,.vue ./",
+    "format": "prettier --write \"**/*.{js,vue,scss,html,md,json}\" --ignore-path .gitignore",
+    "test": "echo \"No test specified\" && exit 0"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.6.9",
+    "@emailjs/browser": "^3.6.2",
+    "@quasar/extras": "^1.0.0",
+    "@vueform/multiselect": "^2.4.2",
+    "@vueuse/core": "^9.2.0",
+    "chart.js": "^3.8.2",
+    "firebase": "^9.8.4",
+    "graphql": "^16.5.0",
+    "graphql-tag": "^2.12.6",
+    "pinia": "^2.0.14",
+    "plausible-tracker": "^0.3.8",
+    "quasar": "^2.6.0",
+    "vue": "^3.0.0",
+    "vue-apollo": "^3.1.0",
+    "vue-chartjs": "^4.1.1",
+    "vue-router": "^4.0.0",
+    "vue-toastification": "^1.7.14",
+    "vue3-radial-progress": "^1.1.1",
+    "vue3-youtube": "^0.1.9"
+  },
+  "devDependencies": {
+    "@chenfengyuan/vue-number-input": "^2.0.1",
+    "@quasar/app-vite": "^1.0.0-alpha.0",
+    "@unocss/transformer-directives": "^0.45.1",
+    "@vue/apollo-composable": "^4.0.0-alpha.18",
+    "autoprefixer": "^10.4.2",
+    "eslint": "^8.10.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-vue": "^8.5.0",
+    "prettier": "^2.5.1",
+    "redaxios": "^0.5.0",
+    "unocss": "^0.30.11",
+    "vite-ssg": "^0.20.2"
+  },
+  "engines": {
+    "node": "^18 || ^16 || ^14.19",
+    "npm": ">= 6.13.4",
+    "yarn": ">= 1.21.1"
+  }
+}

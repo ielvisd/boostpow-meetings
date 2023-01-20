@@ -1,0 +1,103 @@
+import { acceptHMRUpdate, defineStore } from "pinia";
+import { ref } from "vue";
+
+export const useFuelOilDataStore = defineStore({
+  id: "useFuelOilDataStore",
+  state: () => ({
+    catalog: ref({
+      item: "Fuel oil #2 per gallon",
+      area: "U.S. city average",
+      shortName: "fuelOil",
+      emoji: "♨️",
+    }),
+    data: ref([
+      { month: "Dec", value: 2.951, year: 2018 },
+      { month: "Jan", value: 2.934, year: 2019 },
+      {
+        month: "Feb",
+        value: 3.03,
+        year: 2019,
+      },
+      {
+        month: "Mar",
+        value: 3.05,
+        year: 2019,
+      },
+      { month: "Apr", value: 3.103, year: 2019 },
+      {
+        month: "May",
+        value: 3.03,
+        year: 2019,
+      },
+      { month: "Jun", value: 2.946, year: 2019 },
+      { month: "Jul", value: 2.932, year: 2019 },
+      {
+        month: "Aug",
+        value: 2.87,
+        year: 2019,
+      },
+      { month: "Sep", value: 2.894, year: 2019 },
+      { month: "Oct", value: 3.008, year: 2019 },
+      { month: "Nov", value: 2.984, year: 2019 },
+      { month: "Dec", value: 3.035, year: 2019 },
+      { month: "Jan", value: 3.052, year: 2020 },
+      { month: "Feb", value: 2.812, year: 2020 },
+      { month: "Mar", value: 2.405, year: 2020 },
+      { month: "Apr", value: 2.044, year: 2020 },
+      { month: "May", value: 1.905, year: 2020 },
+      { month: "Jun", value: 2.057, year: 2020 },
+      { month: "Jul", value: 2.134, year: 2020 },
+      { month: "Aug", value: 2.161, year: 2020 },
+      { month: "Sep", value: 2.123, year: 2020 },
+      { month: "Oct", value: 2.139, year: 2020 },
+      { month: "Nov", value: 2.208, year: 2020 },
+      { month: "Dec", value: 2.419, year: 2020 },
+      { month: "Jan", value: 2.549, year: 2021 },
+      {
+        month: "Feb",
+        value: 2.79,
+        year: 2021,
+      },
+      { month: "Mar", value: 2.873, year: 2021 },
+      { month: "Apr", value: 2.785, year: 2021 },
+      { month: "May", value: 2.825, year: 2021 },
+      { month: "Jun", value: 2.952, year: 2021 },
+      {
+        month: "Jul",
+        value: 2.98,
+        year: 2021,
+      },
+      { month: "Aug", value: 2.932, year: 2021 },
+      { month: "Sep", value: 2.999, year: 2021 },
+      { month: "Oct", value: 3.422, year: 2021 },
+      { month: "Nov", value: 3.512, year: 2021 },
+      { month: "Dec", value: 3.443, year: 2021 },
+      { month: "Jan", value: 3.776, year: 2022 },
+      { month: "Feb", value: 4.058, year: 2022 },
+      { month: "Mar", value: 4.928, year: 2022 },
+      { month: "Apr", value: 5.143, year: 2022 },
+      { month: "May", value: 5.973, year: 2022 },
+      { month: "Jun", value: 5.863, year: 2022 },
+      { month: "Jul", value: 5.256, year: 2022 },
+      { month: "Aug", value: 4.953, year: 2022 },
+      { month: "Sept", value: 4.815, year: 2022 },
+      {
+        month: "Oct",
+        value: 5.786,
+        year: 2022,
+      },
+      {
+        month: "Nov",
+        value: 5.24,
+        year: 2022,
+      },
+      {
+        month: "Dec",
+        value: 4.344,
+        year: 2022,
+      },
+    ]),
+  }),
+});
+if (import.meta.hot)
+  import.meta.hot.accept(acceptHMRUpdate(useFuelOilDataStore, import.meta.hot));
