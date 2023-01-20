@@ -14,7 +14,7 @@
 
         <q-toolbar-title class="text-white antebBold flex items-center">
           <i class="fak fa-satoshisymbol-solidcirtilt" />
-          <p text-base md:text-xl m-0 ml-2 pt-1>BoostPOW Daily Meeting</p>
+          <p text-base md:text-xl m-0 ml-2 pt-1>BoostPOW Daily meetingss</p>
         </q-toolbar-title>
         <DarkSwitcher />
 
@@ -102,19 +102,19 @@ import { useQuasar } from "quasar";
 
 const linksList = [
   {
-    title: "BoostPOW Daily Meeting @RelayX",
-    caption: "Official Satoshi Price Index Relay Page",
+    title: "BoostPOW Daily meetingssing @RelayX",
+    caption: "Official BoostPOW Daily meetingss Relay Page",
     icon: "🐟",
     link: "https://relayx.com/1satoshipriceindex",
   },
   {
-    title: "Satoshi Price Index Twetch",
+    title: "BoostPOW Daily meetingss Twetch",
     caption: "Follow us on twetch",
     icon: "🧢",
     link: "https://twetch.com/u/80571",
   },
   {
-    title: "BoostPOW Daily Meeting Twitter",
+    title: "BoostPOW Daily meetingss Twitter",
     caption: "Follow us on Twitter",
     icon: "🐦",
     link: "https://twitter.com/satspriceindex",
