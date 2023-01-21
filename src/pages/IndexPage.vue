@@ -127,9 +127,9 @@ export default defineComponent({
     tokensRequired(videoTitle) {
       const daysOld = this.daysAgo(videoTitle);
 
-      const tokens = 50 - daysOld;
+      const tokens = 10000 - daysOld * 100;
 
-      return tokens >= 1 ? tokens : 1;
+      return tokens >= 100 ? tokens : 100;
     },
     timeSince(date) {
       const seconds = Math.floor(new Date().getTime() / 1000 - date);
