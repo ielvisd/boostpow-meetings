@@ -10,6 +10,8 @@ export const useRelayUserStore = defineStore({
     loading: false,
     paymail: null,
     powcoTokens: null,
+    powcoVideos: [],
+    totalPowcoVideos: 0,
   }),
   actions: {
     toggleLoading() {
@@ -28,10 +30,20 @@ export const useRelayUserStore = defineStore({
         `https://staging-backend.relayx.com/api/user/balance2/${ownerAddress}`
       );
       const response_data = await walletJSON.json();
-      // const collectibles = response_data.data.collectibles;
       const balances = response_data.data.balances;
       console.log("balances are: ", balances);
       this.powcoTokens = balances[powTokenContractID];
+
+      // Get the playlist items if this is a powco token holder
+      if (this.powcoTokens >= 1) {
+        const powcoPlaylistResponse = await fetch(
+          "https://content-youtube.googleapis.com/youtube/v3/playlistItems?playlistId=PLW2_xGu416tTP4dJwppVNDjrnU-OWpeQr&part=snippet%2CcontentDetails&maxResults=50&key=AIzaSyC9V5yMpbxSIUXlHhwaq3t8HRla_B3H_fk"
+          // "https://youtube.googleapis.com/youtube/v3/channels?part=id&id=PLW2_xGu416tTP4dJwppVNDjrnU-OWpeQr&key=[AIzaSyC9V5yMpbxSIUXlHhwaq3t8HRla_B3H_fk]"
+        );
+        const powcoPlaylist = await powcoPlaylistResponse.json();
+        this.powcoVideos = powcoPlaylist.items;
+        this.totalPowcoVideos = powcoPlaylist.pageInfo.totalResults;
+      }
       this.loading = false;
     },
     async getRunOwner() {

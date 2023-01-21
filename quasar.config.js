@@ -36,7 +36,7 @@ module.exports = configure(function (ctx) {
     extras: [
       // 'ionicons-v4',
       // 'mdi-v5',
-      // 'fontawesome-v6',
+      "fontawesome-v6",
       // 'eva-icons',
       // 'themify',
       // 'line-awesome',
@@ -48,7 +48,7 @@ module.exports = configure(function (ctx) {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#build
     build: {
-      distDir: ctx.mode.spa ? 'public' : null,
+      distDir: ctx.mode.spa ? "public" : null,
       target: {
         browser: ["es2019", "edge88", "firefox78", "chrome87", "safari13.1"],
         node: "node16",
@@ -83,7 +83,7 @@ module.exports = configure(function (ctx) {
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework
     framework: {
       config: {
-        dark: 'true' // or Boolean true/false
+        dark: "true", // or Boolean true/false
       },
       // iconSet: 'material-icons', // Quasar icon set
       // lang: 'en-US', // Quasar language pack

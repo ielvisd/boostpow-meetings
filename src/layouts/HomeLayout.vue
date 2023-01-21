@@ -13,7 +13,7 @@
         />
 
         <q-toolbar-title class="text-white antebBold flex items-center">
-          <i class="fak fa-satoshisymbol-solidcirtilt" />
+          <i class="fa-solid fa-feather-pointed"></i>
           <p text-base md:text-xl m-0 ml-2 pt-1>BoostPOW Daily meetings</p>
         </q-toolbar-title>
         <DarkSwitcher />
