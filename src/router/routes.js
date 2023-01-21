@@ -6,11 +6,6 @@ const routes = [
     children: [{ path: "", component: () => import("pages/IndexPage.vue") }],
   },
   {
-    path: "/features",
-    component: () => import("layouts/HomeLayout.vue"),
-    children: [{ path: "", component: () => import("pages/FeaturesPage.vue") }],
-  },
-  {
     path: "/:videoId",
     meta: { requiresAuth: true },
     component: () => import("layouts/HomeLayout.vue"),
