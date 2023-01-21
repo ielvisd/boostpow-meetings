@@ -14,7 +14,7 @@
 
         <q-toolbar-title class="text-white antebBold flex items-center">
           <i class="fa-solid fa-feather-pointed"></i>
-          <p text-base md:text-xl m-0 ml-2 pt-1>BoostPOW Daily meetings</p>
+          <p text-base md:text-xl m-0 ml-2 pt-1>The POWCO Dev Show</p>
         </q-toolbar-title>
         <DarkSwitcher />
 
@@ -44,20 +44,6 @@
       <q-list>
         <q-tabs antebBold v-model="tab" vertical>
           <q-route-tab icon="home" to="/" exact name="home" label="Home" />
-          <q-route-tab
-            icon="calculate"
-            to="/tools/DCA-Calculator"
-            exact
-            name="DCA-Calculator"
-            label="Tools"
-          />
-          <q-route-tab
-            icon="rocket_launch"
-            name="features"
-            label="Features"
-            to="/features"
-            exact
-          />
         </q-tabs>
 
         <q-item-label antebBold header> Essential Links </q-item-label>
@@ -95,22 +81,28 @@ import { useQuasar } from "quasar";
 
 const linksList = [
   {
-    title: "BoostPOW Daily meetingsing @RelayX",
-    caption: "Official BoostPOW Daily meetings Relay Page",
-    icon: "🐟",
-    link: "https://relayx.com/1satoshipriceindex",
+    title: "POWCO",
+    caption: "Proof of Work Cooperative",
+    icon: "🦌",
+    link: "https://pow.co",
   },
   {
-    title: "BoostPOW Daily meetings Twetch",
-    caption: "Follow us on twetch",
-    icon: "🧢",
-    link: "https://twetch.com/u/80571",
+    title: "AskBitcoin",
+    caption: "AskBitcoin",
+    icon: "🧠",
+    link: "https://askbitcoin.com",
   },
   {
-    title: "BoostPOW Daily meetings Twitter",
-    caption: "Follow us on Twitter",
-    icon: "🐦",
-    link: "https://twitter.com/satspriceindex",
+    title: "POWCO Development",
+    caption: "Improve POWCO properties and earn satoshis",
+    icon: "👷‍♂️",
+    link: "https://powco.dev",
+  },
+  {
+    title: "POWStream",
+    caption: "Watch & boost",
+    icon: "🍿",
+    link: "https://powstream.com",
   },
 ];
 

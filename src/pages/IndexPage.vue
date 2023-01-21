@@ -1,8 +1,15 @@
 <template>
   <q-page class="px-4 flex flex-col justify-start items-center mx-auto w-full">
     <p mt-4 v-if="!relayUserStore.powcoTokens">
-      You must be logged in and a POWCO token holder to view past POWCO Daily
-      Meetings
+      You must be logged in and a
+      <a
+        href="https://relayx.com/market/93f9f188f93f446f6b2d93b0ff7203f96473e39ad0f58eb02663896b53c4f020_o2"
+        target="_blank"
+        rel="noreferrer"
+      >
+        POWCO token holder
+      </a>
+      to view past POWCO Daily Meetings
     </p>
     <div v-else class="q-pa-md">
       <q-card
