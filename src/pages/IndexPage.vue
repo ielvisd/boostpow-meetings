@@ -74,8 +74,6 @@ const relayUserStore = useRelayUserStore();
 
 onMounted(() => {
   console.log("in onMounted");
-
-  console.log("fuel oil store", fuelOilDataStore);
 });
 
 export default defineComponent({

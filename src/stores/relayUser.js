@@ -41,7 +41,7 @@ export const useRelayUserStore = defineStore({
           // "https://youtube.googleapis.com/youtube/v3/channels?part=id&id=PLW2_xGu416tTP4dJwppVNDjrnU-OWpeQr&key=[AIzaSyC9V5yMpbxSIUXlHhwaq3t8HRla_B3H_fk]"
         );
         const powcoPlaylist = await powcoPlaylistResponse.json();
-        this.powcoVideos = powcoPlaylist.items;
+        this.powcoVideos = powcoPlaylist.items.reverse();
         this.totalPowcoVideos = powcoPlaylist.pageInfo.totalResults;
       }
       this.loading = false;
