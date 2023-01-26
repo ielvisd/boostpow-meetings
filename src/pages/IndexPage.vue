@@ -11,11 +11,11 @@
       </a>
       to view past POWCO Daily Meetings
     </p>
-    <div v-else class="q-pa-md">
+    <div v-else class="q-pa-md flex justify-center items-center">
       <q-card
         v-for="video in relayUserStore.powcoVideos"
         v-bind:key="video.id"
-        class="my-card"
+        class="my-card mx-2"
       >
         <q-video
           v-if="
