@@ -8,11 +8,11 @@ import { inject } from 'vue';
 
 export default defineComponent({
   name: 'App',
-  data() {
+  data () {
     return {
     };
   },
-  setup() {
+  setup () {
     const plausible = inject('plausible');
     return {
       plausible,

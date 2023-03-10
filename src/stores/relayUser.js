@@ -5,10 +5,10 @@ export const useRelayUserStore = defineStore({
   state: () => ({
     // initialize state from local storage to enable user to stay logged in
     user: JSON.parse(localStorage.getItem("user")),
-    loggedIn: false,
+    loggedIn: JSON.parse(localStorage.getItem("loggedIn")) || false,
     returnUrl: null,
     loading: false,
-    paymail: null,
+    paymail: localStorage.getItem("paymail"),
     powcoTokens: null,
     powcoVideos: [],
     totalPowcoVideos: 0,
@@ -21,6 +21,7 @@ export const useRelayUserStore = defineStore({
       return `https://berry.relayx.com/${gopBerryTxId}`;
     },
     async setJigs(ownerAddress) {
+      console.log("in setJigs, ownerAddress is: ", ownerAddress);
       const powTokenContractID =
         "93f9f188f93f446f6b2d93b0ff7203f96473e39ad0f58eb02663896b53c4f020_o2";
       this.loading = true;
@@ -33,12 +34,12 @@ export const useRelayUserStore = defineStore({
       const balances = response_data.data.balances;
       console.log("balances are: ", balances);
       this.powcoTokens = balances[powTokenContractID];
+      console.log("powcoTokens are: ", this.powcoTokens);
 
       // Get the playlist items if this is a powco token holder
       if (this.powcoTokens >= 1) {
         const powcoPlaylistResponse = await fetch(
           "https://content-youtube.googleapis.com/youtube/v3/playlistItems?playlistId=PLW2_xGu416tTP4dJwppVNDjrnU-OWpeQr&part=snippet%2CcontentDetails&maxResults=50&key=AIzaSyC9V5yMpbxSIUXlHhwaq3t8HRla_B3H_fk"
-          // "https://youtube.googleapis.com/youtube/v3/channels?part=id&id=PLW2_xGu416tTP4dJwppVNDjrnU-OWpeQr&key=[AIzaSyC9V5yMpbxSIUXlHhwaq3t8HRla_B3H_fk]"
         );
         const powcoPlaylist = await powcoPlaylistResponse.json();
         this.powcoVideos = powcoPlaylist.items.reverse();
@@ -65,6 +66,7 @@ export const useRelayUserStore = defineStore({
       const [payload, singature] = token.split(".");
       const data = JSON.parse(atob(payload));
       localStorage.setItem("paymail", data.paymail);
+      localStorage.setItem("loggedIn", true); // save login status to localStorage
       this.paymail = data.paymail;
       this.loggedIn = true;
       await this.getRunOwner();
@@ -72,12 +74,10 @@ export const useRelayUserStore = defineStore({
     logout() {
       this.loading = true;
       localStorage.removeItem("paymail");
+      localStorage.removeItem("loggedIn"); // remove login status from localStorage
       this.paymail = null;
       this.loggedIn = false;
-      // relayone.logout()
-      localStorage.removeItem("https://one.relayx.io/");
-      // redirect to previous url or default to home page
-      // useRouter(this.returnUrl || '/')
+      this.loading = false;
     },
   },
 });

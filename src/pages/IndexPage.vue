@@ -17,75 +17,90 @@
             <p class="text-white font-bold">Not enough POWCO tokens for this video</p>
           </div>
         </div>
-        <q-card-section class="px-4 py-2">
-          <div class="text-h6 mb-2">
-            <a v-if="relayUserStore.powcoTokens >= tokensRequired(video.snippet.title)"
-              :href="`/${video.contentDetails.videoId}`"
-              class="text-purple-400 text-wrap hover:underline overflow-hidden break-all">{{
-                video.snippet.title
-              }}</a>
-            <span v-else class="text-gray-400 break-all">{{ video.snippet.title }}</span>
+        <!-- Make this hold 2 columns -->
+        <q-card-section class="
+                  flex
+                  flex-col
+                  justify-between
+                  items-center
+                  h-full
+                ">
+          <!-- A div to hold these three field -->
+          <div class="
+                    flex
+                    justify-between
+                    items-center
+                    mb-2
+                  ">
+
+            <div class="text-h6 mb-2">
+              <a v-if="relayUserStore.powcoTokens >= tokensRequired(video.snippet.title)"
+                :href="`/${video.contentDetails.videoId}`"
+                class="text-purple-400 text-wrap hover:underline overflow-hidden break-all">{{
+                  video.snippet.title
+                }}</a>
+              <span v-else class="text-gray-400 break-all">{{ video.snippet.title }}</span>
+            </div>
+            <div class="text-subtitle2 mb-1">
+              <span class="font-bold">Days old:</span> {{ daysAgo(video.snippet.title) }}
+            </div>
+            <div class="text-subtitle2">
+              <span class="font-bold">Tokens Required:</span> {{ tokensRequired(video.snippet.title) }}
+            </div>
           </div>
-          <div class="text-subtitle2 mb-1">
-            <span class="font-bold">Days old:</span> {{ daysAgo(video.snippet.title) }}
-          </div>
-          <div class="text-subtitle2">
-            <span class="font-bold">Tokens Required:</span> {{ tokensRequired(video.snippet.title) }}
-          </div>
+          <!-- A div to hold the boost button -->
+          <!-- <div class="
+                  flex
+                  justify-center
+                  items-center
+                  w-full
+                ">
+            <BoostButton v-if="relayUserStore.powcoTokens >= tokensRequired(video.snippet.title)"
+              :videoId="video.contentDetails.videoId" :tokensRequired="tokensRequired(video.snippet.title)" />
+          </div> -->
         </q-card-section>
       </q-card>
     </div>
   </q-page>
 </template>
-<script>
-import { defineComponent } from "vue";
-import { ref } from "vue";
 
-import { useRelayUserStore } from "../stores/relayUser.js";
+<script setup lang="ts">
+import { ref, Ref, onMounted } from "vue";
+import { useRelayUserStore } from "../stores/relayUser";
+// import BoostButton from "../components/BoostButton.vue";
 
-export default defineComponent({
-  name: "IndexPage",
-  data () {
-    const relayUserStore = useRelayUserStore();
+const relayUserStore = useRelayUserStore();
 
-    return {
-      relayUserStore,
-      splitterModel: ref(20),
-    };
-  },
-  setup () {
-    return {
-      initialPagination: {
-        sortBy: "last30days",
-        descending: false,
-        page: 1,
-        rowsPerPage: 50,
-        // rowsNumber: xx if getting data from a server
-      },
-    };
-  },
-  methods: {
-    onReady () {
-      // this.$refs.youtube.playVideo();
-    },
-    daysAgo (videoTitle) {
-      const dateFromTitle = videoTitle.split("_").pop();
-      // To set two dates to two variables
-      // .split to set to UTC time https://stackoverflow.com/a/7556787
-      var date1 = new Date(dateFromTitle.split("-"));
-      var date2 = new Date();
-      // To calculate the time difference of two dates
-      var Difference_In_Time = date2.getTime() - date1.getTime();
-      // To calculate the no. of days between two dates
-      var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
-      return Math.floor(Difference_In_Days);
-    },
-    tokensRequired (videoTitle) {
-      const daysOld = this.daysAgo(videoTitle);
-      const tokens = 10000 - daysOld * 100;
-      return tokens >= 100 ? tokens : 100;
-    },
-  },
+function daysAgo (videoTitle) {
+  const dateFromTitle = videoTitle.split("_").pop();
+  // To set two dates to two variables
+  // .split to set to UTC time https://stackoverflow.com/a/7556787
+  var date1 = new Date(dateFromTitle.split("-"));
+  var date2 = new Date();
+  // To calculate the time difference of two dates
+  var Difference_In_Time = date2.getTime() - date1.getTime();
+  // To calculate the no. of days between two dates
+  var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+  return Math.floor(Difference_In_Days);
+}
+
+function tokensRequired (videoTitle) {
+  const daysOld = daysAgo(videoTitle);
+  const tokens = 10000 - daysOld * 100;
+  // console.log("Hello from the IndexPage!");
+  return tokens >= 100 ? tokens : 100;
+
+
+}
+
+onMounted(async () => {
+  // TODO: Figure out why console log breaks it
+  // console.log("Hello from the IndexPage!");
+  // If the user is logged in, get their POWCO tokens using setJigs]
+  if (relayUserStore?.paymail) {
+    const ownerResponse = await relayone.alpha.run.getOwner();
+    relayUserStore.setJigs(ownerResponse);
+  }
 });
 </script>
 
