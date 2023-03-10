@@ -1,87 +1,51 @@
 <template>
   <q-page class="px-4 flex flex-col justify-start items-center mx-auto w-full">
-    <p mt-4 v-if="!relayUserStore.powcoTokens">
-      You must be logged in and a
-      <a
-        href="https://relayx.com/market/93f9f188f93f446f6b2d93b0ff7203f96473e39ad0f58eb02663896b53c4f020_o2"
-        target="_blank"
-        rel="noreferrer"
-      >
-        POWCO token holder
+    <p class="my-4 text-center" v-if="!relayUserStore.powcoTokens">
+      Oops! It looks like you're not logged in or a POWCO token holder yet. <br>
+      <a href="https://relayx.com/market/93f9f188f93f446f6b2d93b0ff7203f96473e39ad0f58eb02663896b53c4f020_o2"
+        target="_blank" rel="noreferrer" class="text-purple-500 underline">
+        Click here to become a token holder and unlock access to past POWCO Daily Meetings.
       </a>
-      to view past POWCO Daily Meetings
     </p>
-    <div v-else class="q-pa-md flex justify-center items-center">
-      <q-card
-        v-for="video in relayUserStore.powcoVideos"
-        v-bind:key="video.id"
-        class="my-card mx-2"
-      >
-        <q-video
-          v-if="
+    <div v-else class="q-pa-md grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <q-card v-for="video in relayUserStore.powcoVideos" v-bind:key="video.id" class="my-card">
+        <div class="relative">
+          <q-video v-if="
             relayUserStore.powcoTokens >= tokensRequired(video.snippet.title)
-          "
-          class="my-card"
-          :src="`https://www.youtube.com/embed/${video.contentDetails.videoId}`"
-        />
-        <p v-else text-center py-8>Not enough POWCO tokens for this video</p>
-        <q-card-section>
-          <div class="text-h6">{{ video.snippet.title }}</div>
-          <div class="text-subtitle2">
-            Days old: {{ daysAgo(video.snippet.title) }}
+          " class="my-card" :src="`https://www.youtube.com/embed/${video.contentDetails.videoId}`" />
+          <div v-else class="absolute inset-0 bg-black opacity-75 flex justify-center items-center">
+            <p class="text-white font-bold">Not enough POWCO tokens for this video</p>
+          </div>
+        </div>
+        <q-card-section class="px-4 py-2">
+          <div class="text-h6 mb-2">
+            <a v-if="relayUserStore.powcoTokens >= tokensRequired(video.snippet.title)"
+              :href="`/${video.contentDetails.videoId}`"
+              class="text-purple-400 text-wrap hover:underline overflow-hidden break-all">{{
+                video.snippet.title
+              }}</a>
+            <span v-else class="text-gray-400 break-all">{{ video.snippet.title }}</span>
+          </div>
+          <div class="text-subtitle2 mb-1">
+            <span class="font-bold">Days old:</span> {{ daysAgo(video.snippet.title) }}
           </div>
           <div class="text-subtitle2">
-            Tokens Required: {{ tokensRequired(video.snippet.title) }}
+            <span class="font-bold">Tokens Required:</span> {{ tokensRequired(video.snippet.title) }}
           </div>
         </q-card-section>
       </q-card>
     </div>
   </q-page>
 </template>
-
 <script>
 import { defineComponent } from "vue";
-import { ref, computed, nextTick, watch, onMounted } from "vue";
-import { provideApolloClient, useQuery } from "@vue/apollo-composable";
-import gql from "graphql-tag";
-import {
-  ApolloClient,
-  InMemoryCache,
-  createHttpLink,
-} from "@apollo/client/core";
+import { ref } from "vue";
 
-// import NFTChart from '../components/NFTChart.vue'
 import { useRelayUserStore } from "../stores/relayUser.js";
-// import YouTube from "vue3-youtube";
-
-// HTTP connection to the API
-const httpLink = createHttpLink({
-  // You should use an absolute URL here
-  uri: "https://staging-backend.relayx.com/graphql",
-});
-
-// Cache implementation
-const cache = new InMemoryCache();
-
-// Create the apollo client
-const apolloClient = new ApolloClient({
-  link: httpLink,
-  cache,
-});
-
-provideApolloClient(apolloClient);
-const relayUserStore = useRelayUserStore();
-
-onMounted(() => {
-  console.log("in onMounted");
-});
 
 export default defineComponent({
   name: "IndexPage",
-  components: {
-    // YouTube,
-  },
-  data() {
+  data () {
     const relayUserStore = useRelayUserStore();
 
     return {
@@ -89,7 +53,7 @@ export default defineComponent({
       splitterModel: ref(20),
     };
   },
-  setup() {
+  setup () {
     return {
       initialPagination: {
         sortBy: "last30days",
@@ -100,39 +64,26 @@ export default defineComponent({
       },
     };
   },
-  async mounted() {
-    console.log("mounted");
-  },
   methods: {
-    onReady() {
+    onReady () {
       // this.$refs.youtube.playVideo();
     },
-    daysAgo(videoTitle) {
+    daysAgo (videoTitle) {
       const dateFromTitle = videoTitle.split("_").pop();
-      console.log("datefromTitle", dateFromTitle);
       // To set two dates to two variables
       // .split to set to UTC time https://stackoverflow.com/a/7556787
       var date1 = new Date(dateFromTitle.split("-"));
-      console.log("date1: ", date1);
       var date2 = new Date();
-      console.log("date2: ", date2);
       // To calculate the time difference of two dates
       var Difference_In_Time = date2.getTime() - date1.getTime();
       // To calculate the no. of days between two dates
       var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
       return Math.floor(Difference_In_Days);
     },
-    tokensRequired(videoTitle) {
+    tokensRequired (videoTitle) {
       const daysOld = this.daysAgo(videoTitle);
-
       const tokens = 10000 - daysOld * 100;
-
       return tokens >= 100 ? tokens : 100;
-    },
-    timeSince(date) {
-      const seconds = Math.floor(new Date().getTime() / 1000 - date);
-
-      return new Date(Date.now() - seconds * 1000).toDateString();
     },
   },
 });
@@ -143,6 +94,7 @@ export default defineComponent({
   width: 100%;
   max-width: 300px;
 }
+
 .q-table__container {
   box-shadow: none;
 }

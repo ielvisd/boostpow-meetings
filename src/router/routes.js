@@ -7,9 +7,10 @@ const routes = [
   },
   {
     path: "/:videoId",
-    meta: { requiresAuth: true },
     component: () => import("layouts/HomeLayout.vue"),
-    children: [{ path: "", component: () => import("pages/Item.vue") }],
+    children: [
+      { path: "", component: () => import("src/pages/VideoPage.vue") },
+    ],
   },
   // Always leave this as last one,
   // but you can also remove it
