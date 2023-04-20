@@ -1,106 +1,171 @@
 <template>
   <q-page class="px-4 flex flex-col justify-start items-center mx-auto w-full">
-    <p class="my-4 text-center" v-if="!relayUserStore.powcoTokens">
-      Oops! It looks like you're not logged in or a POWCO token holder yet. <br>
-      <a href="https://relayx.com/market/93f9f188f93f446f6b2d93b0ff7203f96473e39ad0f58eb02663896b53c4f020_o2"
-        target="_blank" rel="noreferrer" class="text-purple-500 underline">
-        Click here to become a token holder and unlock access to past POWCO Daily Meetings.
-      </a>
-    </p>
-    <div v-else class="q-pa-md grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-      <q-card v-for="video in relayUserStore.powcoVideos" v-bind:key="video.id" class="my-card">
-        <div class="relative">
-          <q-video v-if="
-            relayUserStore.powcoTokens >= tokensRequired(video.snippet.title)
-          " class="my-card" :src="`https://www.youtube.com/embed/${video.contentDetails.videoId}`" />
-          <div v-else class="absolute inset-0 bg-black opacity-75 flex justify-center items-center">
-            <p class="text-white font-bold">Not enough POWCO tokens for this video</p>
-          </div>
-        </div>
-        <!-- Make this hold 2 columns -->
-        <q-card-section class="
-                  flex
-                  flex-col
-                  justify-between
-                  items-center
-                  h-full
-                ">
-          <!-- A div to hold these three field -->
-          <div class="
-                    flex
-                    justify-between
-                    items-center
-                    mb-2
-                  ">
+    <div class="q-pa-md flex justify-center items-center w-full">
+      <!-- The total number of videos in the right hand corner -->
+      <p class="text-2xl font-bold absolute right-0 top-0 mr-4 mt-4" v-if="relayUserStore.powcoVideos?.length">
+        <span class="text-2xl font-bold">{{ numberOfVideos }}</span> videos
+      </p>
 
-            <div class="text-h6 mb-2">
-              <a v-if="relayUserStore.powcoTokens >= tokensRequired(video.snippet.title)"
-                :href="`/${video.contentDetails.videoId}`"
-                class="text-purple-400 text-wrap hover:underline overflow-hidden break-all">{{
-                  video.snippet.title
-                }}</a>
-              <span v-else class="text-gray-400 break-all">{{ video.snippet.title }}</span>
-            </div>
-            <div class="text-subtitle2 mb-1">
-              <span class="font-bold">Days old:</span> {{ daysAgo(video.snippet.title) }}
-            </div>
-            <div class="text-subtitle2">
-              <span class="font-bold">Tokens Required:</span> {{ tokensRequired(video.snippet.title) }}
-            </div>
-          </div>
-          <!-- A div to hold the boost button -->
-          <!-- <div class="
-                  flex
-                  justify-center
-                  items-center
-                  w-full
-                ">
-            <BoostButton v-if="relayUserStore.powcoTokens >= tokensRequired(video.snippet.title)"
-              :videoId="video.contentDetails.videoId" :tokensRequired="tokensRequired(video.snippet.title)" />
-          </div> -->
-        </q-card-section>
-      </q-card>
+      <div class="w-full flex flex-col items-center justify-center">
+        <h1 class="text-4xl font-bold mb-4">The POWCO Show</h1>
+        <p class="text-lg m-0">
+          POWCO show episodes ranked by Boost Proof of Work
+        </p>
+      </div>
+      <div flex flex-col justify-center items-center>
+
+        <div class="flex justify-center items-center">
+          <q-select v-model="selectedSort" :options="sortOptions" class="my-4 mx-4" />
+          <q-select v-model="dateModel" :options="dateOptions"
+            :display-value="`${dateModel ? dateModel.label : '*none*'}`" />
+        </div>
+
+        <paginate mx-auto v-model:current-page="currentPage" :totalPage="pageCount" @pageChange="handlePageChange" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <ItemCard v-for="video in slicedVideos" :key="video.id" :video="video" :exchangeRate="exchangeRate"
+            class="my-card" />
+        </div>
+      </div>
     </div>
   </q-page>
 </template>
 
-<script setup lang="ts">
-import { ref, Ref, onMounted } from "vue";
-import { useRelayUserStore } from "../stores/relayUser";
-// import BoostButton from "../components/BoostButton.vue";
+<script setup>
+import { onMounted, onBeforeMount, ref, computed } from 'vue';
+import ItemCard from '../components/ItemCard.vue'
+import { useRelayUserStore } from '../stores/relayUser.js';
+import { api } from 'boot/axios'
+import { useQuasar } from 'quasar';
+import Paginate from 'vue3-paginate'
+
+const $q = useQuasar();
+const currentPage = ref(1);
+const pageSize = ref(9);
 
 const relayUserStore = useRelayUserStore();
+const sortOptions = [
+  { label: 'No. low to high', value: 'No. low to high' },
+  { label: 'No. high to low', value: 'No. high to low' },
+  { label: 'Difficulty high to low', value: 'Difficulty high to low' },
+];
+const selectedSort = ref('Difficulty high to low');
 
-function daysAgo (videoTitle) {
-  const dateFromTitle = videoTitle.split("_").pop();
-  // To set two dates to two variables
-  // .split to set to UTC time https://stackoverflow.com/a/7556787
-  var date1 = new Date(dateFromTitle.split("-"));
-  var date2 = new Date();
-  // To calculate the time difference of two dates
-  var Difference_In_Time = date2.getTime() - date1.getTime();
-  // To calculate the no. of days between two dates
-  var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
-  return Math.floor(Difference_In_Days);
-}
+// A computed property for the total number of powcoVideos
+const numberOfVideos = computed(() =>
+  relayUserStore.powcoVideos.length
+);
 
-function tokensRequired (videoTitle) {
-  const daysOld = daysAgo(videoTitle);
-  const tokens = 10000 - daysOld * 100;
-  // console.log("Hello from the IndexPage!");
-  return tokens >= 100 ? tokens : 100;
+const pageCount = computed(() => {
+  const items = relayUserStore.powcoVideos?.length;
+  if (!items) return 0;
+  return Math.ceil(items / pageSize.value);
+});
+
+const slicedVideos = computed(() => {
+  let videos = relayUserStore.powcoVideos || [];
+
+  // Remove videos without 'kind' or 'media_info' properties
+  videos = videos.filter((video) =>
+
+    video?.kind || video?.media_info
+  );
+
+  // Then sort by difficulty
+  videos?.sort((a, b) => b?.difficulty - a?.difficulty);
 
 
-}
+  if (videos && selectedSort.value) {
+    switch (selectedSort.value.value) {
+      case 'No. low to high':
+        videos.sort((a, b) => a?.props?.no - b?.props?.no);
+        break;
+      case 'No. high to low':
+        videos.sort((a, b) => b?.props?.no - a?.props?.no);
+        break;
+      case 'Difficulty high to low':
+        videos.sort((a, b) => b?.difficulty - a?.difficulty);
+        break;
+      default:
+        break;
+    }
+  }
+
+  const startIndex = (currentPage.value - 1) * pageSize.value;
+  const endIndex = startIndex + pageSize.value;
+
+  return videos && videos.slice(startIndex, endIndex);
+});
+
+
+const now = new Date().getTime()
+// Calculate the Unix timestamp for 7 days ago (in milliseconds)
+const sevenDaysAgo = now - (7 * 24 * 60 * 60 * 1000);
+const oneDayAgo = now - (1 * 24 * 60 * 60 * 1000);
+const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000);
+// Convert the Unix timestamp to seconds by dividing by 1000
+const unixTimestampSevenDaysAgo = Math.floor(sevenDaysAgo / 1000);
+const unixTimestampOneDayAgo = Math.floor(oneDayAgo / 1000);
+const unixTimestampThirtyDaysAgo = Math.floor(thirtyDaysAgo / 1000);
+
+const handlePageChange = (pageNum) => {
+  currentPage.value = pageNum;
+};
+
+const dateModel = ref({
+  label: 'Last 7 days',
+  value: '7d',
+  startDate: unixTimestampSevenDaysAgo,
+  endDate: Date.now()
+})
+
+const dateOptions = [
+  {
+    label: 'Last 24 hours',
+    value: '24h',
+    startDate: unixTimestampOneDayAgo,
+    endDate: Date.now()
+  },
+  {
+    label: 'Last 7 days',
+    value: '7d',
+    startDate: unixTimestampSevenDaysAgo,
+    endDate: Date.now()
+  },
+  {
+    label: 'Last 30 days',
+    value: '30d',
+    startDate: unixTimestampThirtyDaysAgo,
+    endDate: Date.now()
+  },
+  {
+    label: 'All time',
+    value: 'total',
+    // Set to BSV genesis block date in Unix format
+    startDate: 1231006505,
+    endDate: Date.now()
+  }
+]
+
+const exchangeRate = ref(null)
+
+// TODO: Pass this as a prop instead
+onBeforeMount(async () => {
+  const exchangeRateResponse = await api.get('https://api.whatsonchain.com/v1/bsv/main/exchangerate')
+
+  // round to w decimals
+  exchangeRate.value = exchangeRateResponse.data.rate.toFixed(2)
+})
+
 
 onMounted(async () => {
-  // TODO: Figure out why console log breaks it
-  // console.log("Hello from the IndexPage!");
-  // If the user is logged in, get their POWCO tokens using setJigs]
-  if (relayUserStore?.paymail) {
-    const ownerResponse = await relayone.alpha.run.getOwner();
-    relayUserStore.setJigs(ownerResponse);
-  }
+  const { data: boost_rankings } = await api.get(`https://pow.co/api/v1/boost/rankings?start_date=${dateModel.value.startDate}&tag=6c61666f6e64616465656c6365626f7275636f`)
+
+  // Call setJigs to load the videos
+  await relayUserStore.setJigs()
+  relayUserStore.combineBoostedRecipes(boost_rankings.rankings)
+
+  // console.log('boost_rankings', boost_rankings)
 });
 </script>
 
@@ -124,5 +189,9 @@ onMounted(async () => {
 
 .body--dark p {
   color: white;
+}
+
+.breakwordsclass {
+  word-break: break-word;
 }
 </style>

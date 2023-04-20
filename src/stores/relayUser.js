@@ -1,17 +1,16 @@
-import { acceptHMRUpdate, defineStore } from "pinia";
+import { acceptHMRUpdate, defineStore } from 'pinia';
+import { api } from 'boot/axios';
 
 export const useRelayUserStore = defineStore({
-  id: "useRelayUserStore",
+  id: 'useRelayUserStore',
   state: () => ({
     // initialize state from local storage to enable user to stay logged in
-    user: JSON.parse(localStorage.getItem("user")),
-    loggedIn: JSON.parse(localStorage.getItem("loggedIn")) || false,
+    user: JSON.parse(localStorage.getItem('user')),
+    loggedIn: false,
     returnUrl: null,
     loading: false,
-    paymail: localStorage.getItem("paymail"),
-    powcoTokens: null,
-    powcoVideos: [],
-    totalPowcoVideos: 0,
+    paymail: null,
+    powcoVideos: null,
   }),
   actions: {
     toggleLoading() {
@@ -20,31 +19,58 @@ export const useRelayUserStore = defineStore({
     gopUrl(gopBerryTxId) {
       return `https://berry.relayx.com/${gopBerryTxId}`;
     },
+
     async setJigs(ownerAddress) {
-      console.log("in setJigs, ownerAddress is: ", ownerAddress);
-      const powTokenContractID =
-        "93f9f188f93f446f6b2d93b0ff7203f96473e39ad0f58eb02663896b53c4f020_o2";
       this.loading = true;
+
+      // Get the past powco.show episodes from the API
+      const response = await api.get('https://tokenmeet.live/api/v1/videos');
+
+      // Get the past powco.show episodes backups from Youtube
+      const youtubeResponse = await api.get(
+        'https://content-youtube.googleapis.com/youtube/v3/playlistItems?playlistId=PLW2_xGu416tTP4dJwppVNDjrnU-OWpeQr&part=snippet%2CcontentDetails&maxResults=50&key=AIzaSyC9V5yMpbxSIUXlHhwaq3t8HRla_B3H_fk'
+      );
+
+      console.log('youtubeResponse is: ', youtubeResponse);
+
+      // TODO: Paginate after 50 videos
+      const powcoPlaylist = youtubeResponse?.data?.items;
+      if (powcoPlaylist) {
+        this.powcoVideos = powcoPlaylist.reverse();
+      }
+
+      if (response && response.data) {
+        const { data } = response;
+        const videos = [...data.videos];
+        this.powcoVideos = [...this.powcoVideos, ...videos];
+      }
+
+      // Sort the videos by createdAt or publishedAt, whichever is available
+      this.powcoVideos.sort((a, b) => {
+        if (a.createdAt && b.createdAt) {
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        }
+        if (a.snippet?.publishedAt && b.snippet?.publishedAt) {
+          return (
+            new Date(b.snippet?.publishedAt) - new Date(a.snippet?.publishedAt)
+          );
+        }
+        if (a.createdAt && b.snippet?.publishedAt) {
+          return new Date(b.snippet?.publishedAt) - new Date(a.createdAt);
+        }
+        if (a.snippet?.publishedAt && b.createdAt) {
+          return new Date(b.createdAt) - new Date(a.snippet?.publishedAt);
+        }
+      });
+
       if (!ownerAddress) return;
 
       const walletJSON = await fetch(
         `https://staging-backend.relayx.com/api/user/balance2/${ownerAddress}`
       );
       const response_data = await walletJSON.json();
-      const balances = response_data.data.balances;
-      console.log("balances are: ", balances);
-      this.powcoTokens = balances[powTokenContractID];
-      console.log("powcoTokens are: ", this.powcoTokens);
-
-      // Get the playlist items if this is a powco token holder
-      if (this.powcoTokens >= 1) {
-        const powcoPlaylistResponse = await fetch(
-          "https://content-youtube.googleapis.com/youtube/v3/playlistItems?playlistId=PLW2_xGu416tTP4dJwppVNDjrnU-OWpeQr&part=snippet%2CcontentDetails&maxResults=50&key=AIzaSyC9V5yMpbxSIUXlHhwaq3t8HRla_B3H_fk"
-        );
-        const powcoPlaylist = await powcoPlaylistResponse.json();
-        this.powcoVideos = powcoPlaylist.items.reverse();
-        this.totalPowcoVideos = powcoPlaylist.pageInfo.totalResults;
-      }
+      // const balances = response_data.data.balances
+      const collectibles = response_data.data.collectibles;
       this.loading = false;
     },
     async getRunOwner() {
@@ -57,27 +83,54 @@ export const useRelayUserStore = defineStore({
           },
         },
       });
-      localStorage.setItem("owner", ownerResponse);
+      localStorage.setItem('owner', ownerResponse);
       this.setJigs(ownerResponse);
     },
     async login() {
       this.loading = true;
       const token = await relayone.authBeta();
-      const [payload, singature] = token.split(".");
+      const [payload, singature] = token.split('.');
       const data = JSON.parse(atob(payload));
-      localStorage.setItem("paymail", data.paymail);
-      localStorage.setItem("loggedIn", true); // save login status to localStorage
+      localStorage.setItem('paymail', data.paymail);
       this.paymail = data.paymail;
       this.loggedIn = true;
       await this.getRunOwner();
     },
     logout() {
       this.loading = true;
-      localStorage.removeItem("paymail");
-      localStorage.removeItem("loggedIn"); // remove login status from localStorage
+      localStorage.removeItem('paymail');
       this.paymail = null;
       this.loggedIn = false;
-      this.loading = false;
+      // relayone.logout()
+      localStorage.removeItem('https://one.relayx.io/');
+      // redirect to previous url or default to home page
+      // useRouter(this.returnUrl || '/')
+    },
+    combineBoostedRecipes(boostedRecipes) {
+      // Loop through powcoVideos and if a recipe is in the boostedRecipes then combine the two.
+      // The boostedRecipes are in powcoVideos but they have a special property called 'difficulty' which is how they will be ranked. powcoVideos should be sorted by difficulty.
+      this.powcoVideos = this.powcoVideos.map((video) => {
+        const videoTxid = video.origin?.split('_')[0];
+        // console.log('videoTxid is: ', videoTxid, video);
+        const boostedRecipe = boostedRecipes.find(
+          (recipe) => recipe.content_txid === videoTxid
+        );
+        if (boostedRecipe) {
+          return {
+            ...video,
+            boosted: true,
+            difficulty: boostedRecipe.difficulty,
+          };
+        } else {
+          return {
+            ...video,
+            boosted: false,
+            difficulty: null,
+          };
+        }
+      });
+      // Sort the powcoVideos by difficulty
+      this.powcoVideos.sort((a, b) => b.difficulty - a.difficulty);
     },
   },
 });

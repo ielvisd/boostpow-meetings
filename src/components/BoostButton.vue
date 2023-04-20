@@ -1,54 +1,60 @@
 <template>
-  <component :is="buttonType"
-    class="pulse font-medium flex items-center cursor-pointer border shadow hover:shadow-lg focus:outline-none focus:shadow-outline"
-    :href="href" :type="type" :class="btnClasses" @click="() => showSuperBoost = true">
-    <slot />
-    <q-dialog v-model="showSuperBoost" position="bottom">
-      <q-card class="q-pa-md w-full md:w-md boostpow-dialog text-center">
-        <div class="flex items-center mb-4">
-          <span
-            class="pulse font-medium flex items-center cursor-pointer border shadow hover:shadow-lg focus:outline-none focus:shadow-outline text-3xl">🦚</span>
-          <div class="ml-2 text-lg font-medium font-bolder">Boostpow</div>
-        </div>
-        <div class="mb-4 w-32 mx-auto">
-          <label class="block mb-1 font-medium">Tag</label>
-          <q-input v-model="tag" outlined class="rounded-md" />
-        </div>
-        <div class="mb-4 w-32 mx-auto">
-          <label class="block mb-1 font-medium">Difficulty</label>
-          <q-input min=0.00025 step=0.0005 v-model.number="difficulty" outlined type="number" class="rounded-md" />
-        </div>
-        <div class="mb-4">
-          <label class="block mb-1 font-medium">Boost Speed {{ boostSpeed }}</label>
-          <div class="flex justify-center items-center">
-            <span class="text-gray-500 text-lg">🐢</span>
-            <q-slider v-model.number="boostSpeed" :min="1" :max=100 class="mx-4 w-7/10" />
-            <span class="text-gray-500 text-lg">🐇</span>
+  <div class="flex flex-col items-center justify-center">
+    <component :is="buttonType"
+      class="pulse font-medium flex items-center cursor-pointer border shadow hover:shadow-lg focus:outline-none focus:shadow-outline"
+      :href="href" :type="type" :class="btnClasses" @click="() => showSuperBoost = true">
+      <slot />
+      <q-dialog v-model="showSuperBoost" position="bottom">
+        <q-card class="q-pa-md w-full md:w-md boostpow-dialog text-center">
+          <div class="flex items-center mb-4">
+            <span
+              class="pulse font-medium flex items-center cursor-pointer border shadow hover:shadow-lg focus:outline-none focus:shadow-outline text-3xl">🦚</span>
+            <div class="ml-2 text-lg font-medium font-bolder">Boostpow</div>
+            <div class="flex flex-row items-center justify-center ml-auto">
+              <label class="block mb-1 font-medium">Rank</label>
+              <q-input min="1" :max="ranks.length" v-model="estimatedRank" outlined type="number"
+                class="rounded-md ml-2" />
+            </div>
           </div>
-        </div>
 
-        <q-btn @click="boost" v-if="totalPriceInUSD >= 0.01" class="mb-4" :label="`Buy Boost $${totalPriceInUSD} `"
-          color="primary" />
+          <div class="mb-4 w-36 mx-auto">
+            <label class="block mb-1 font-medium">Tag</label>
+            <q-input v-model="tag" outlined class="rounded-md" />
+          </div>
+          <div class="mb-4 w-36 mx-auto">
+            <label class="block mb-1 font-medium">Difficulty</label>
+            <q-input min=0.0001 step=0.0005 v-model.number="difficulty" outlined type="number" class="rounded-md"
+              :rules="[val => val > 0.00001 || 'Minimum difficulty is 0.00001']" />
+          </div>
+          <div class="mb-4">
+            <label class="block mb-1 font-medium">Boost Speed {{ boostSpeed }}</label>
+            <div class="flex justify-center items-center">
+              <span class="text-gray-500 text-lg">🐢</span>
+              <q-slider v-model.number="boostSpeed" :min="1" :max=100 class="mx-4 w-7/10" />
+              <span class="text-gray-500 text-lg">🐇</span>
+            </div>
+          </div>
 
-        <q-btn @click="boost" v-else class="mb-4" :label="`Buy Boost ${totalPriceInSatoshis} satoshis`"
-          color="primary" />
+          <q-btn @click="boost" v-if="totalPriceInUSD >= 0.01" class="mb-4" :label="`Buy Boost $${totalPriceInUSD} `"
+            color="primary" />
 
-        <div class="text-gray-500 text-sm">*developer fee: 10%</div>
-      </q-card>
-    </q-dialog>
-  </component>
+          <q-btn @click="boost" v-else class="mb-4" :label="`Buy Boost ${totalPriceInSatoshis} satoshis`"
+            color="primary" />
+
+          <div class="text-gray-500 text-sm">*developer fee: 10%</div>
+        </q-card>
+      </q-dialog>
+    </component>
+  </div>
 </template>
 <!-- eslint-disable @typescript-eslint/ban-ts-comment -->
 <script lang="ts" setup>
-import { computed, inject, ref, watch } from 'vue'
+import { computed, inject, ref, watch, onBeforeMount } from 'vue'
 import { wrapRelayx } from 'stag-relayx'
 import { useQuasar } from 'quasar'
+import { api } from 'boot/axios'
 
 const props = defineProps({
-  exchangeRate: {
-    type: Number,
-    default: 0,
-  },
   href: {
     required: false,
     type: String,
@@ -61,6 +67,11 @@ const props = defineProps({
   content: {
     type: String,
     required: true,
+  },
+  ranks: {
+    type: Array,
+    required: false,
+    default: () => [],
   },
   tag: {
     type: String,
@@ -99,39 +110,55 @@ const props = defineProps({
   round: Boolean,
 })
 
+const exchangeRate = ref(0)
+
+
+// TODO: Pass this as a prop instead
+onBeforeMount(async () => {
+  const exchangeRateResponse = await api.get('https://api.whatsonchain.com/v1/bsv/main/exchangerate')
+
+  // round to w decimals
+  exchangeRate.value = exchangeRateResponse.data.rate.toFixed(2)
+})
+
 const defaultPricePerDifficulty = 2.18
 const boostSpeed = ref(50)
+
 
 const showSuperBoost = ref(false);
 const $q = useQuasar()
 
-const tag = ref('')
+// If the content has a difficulty level don't set a tag, otherwise set the tag to 'powco-show'
+const tag = ref(props.tag || (props.content.includes('difficulty') ? null : 'powco-show'))
 const difficulty = ref(0.00025)
-
+const estimatedRank = ref(
+  props.ranks.findIndex((rank: any) => rank.difficulty < difficulty.value) + 1
+)
 const totalPriceInUSD = ref<number>(defaultPricePerDifficulty * difficulty.value + (defaultPricePerDifficulty * difficulty.value * boostSpeed.value / 100) * 1.1)
 
-// If the computed value is less than 560 satoshis, the transaction will fail, make sure it's at least 560 satoshis
-const totalPriceInSatoshis = computed<number>(() => (totalPriceInUSD.value * 1e8 / props.exchangeRate).toFixed(0))
-
-// const totalPriceInSatoshis = computed<number>(() => (totalPriceInUSD.value * 1e8 / props.exchangeRate).toFixed(0))
-
+const totalPriceInSatoshis = computed<number>(() => (totalPriceInUSD.value * 1e8 / exchangeRate.value).toFixed(0))
 
 const devFee = computed<number>(() => (totalPriceInSatoshis.value * 0.1))
 
-watch([difficulty, boostSpeed], ([newDifficulty, newBoostSpeed]) => {
-  // This is the price in USD, when converted to satoshis the value should never fall below 560 satoshis
+watch([difficulty, boostSpeed], ([newDifficulty, newBoostSpeed], [prevDifficulty, prevBoostSpeed]) => {
   totalPriceInUSD.value = defaultPricePerDifficulty * newDifficulty + (defaultPricePerDifficulty * newDifficulty * newBoostSpeed / 100) * 1.1
+  // If the difficulty is the same as the previous difficulty, then the rank should be the same as the previous rank. Otherwise, the rank should be the index in which the difficulty would be inserted in the ranks array which is sorted from highest to lowest difficulty. If it is equal to the current difficulty then it is the current rank. The index is 1 based so we add 1 to it.
 
-  // If the computed value is less than 560 satoshis, the transaction will fail, make sure it's at least 560 satoshis
-  const totalPriceInSatoshis = (totalPriceInUSD.value * 1e8 / props.exchangeRate).toFixed(0)
+  let index = props.ranks.findIndex((rank: any) => rank.difficulty <= newDifficulty)
 
-  if (totalPriceInSatoshis < 560) {
-    totalPriceInUSD.value = 560 * props.exchangeRate / 1e8
-  }
+  // if index = -1, set it to the length of the ranks array
+  index = index === -1 ? props.ranks.length : index
+
+  estimatedRank.value = newDifficulty === prevDifficulty ? estimatedRank.value : index + 1
+})
+
+watch([estimatedRank], ([newRank], [prevRank]) => {
+  // If the newRank is larger than the length of the ranks array, then the difficulty should be the last difficulty in the ranks array. Otherwise, the difficulty should be the difficulty of the rank that was selected.
+  difficulty.value = newRank > props.ranks.length ? props.ranks[props.ranks.length - 1].difficulty : props.ranks[newRank - 1].difficulty
 })
 
 const colorClasses = computed(() => {
-  const baseClasses = 'bg-pink-600 text-pink-100 border-pink-600 hover:bg-pink-700 hover:border-pink-700 hover:text-white'
+  const baseClasses = 'text-pink-100 border-pink-600 hover:bg-pink-700 hover:border-pink-700 hover:text-white'
   const outlineClasses = 'border-pink bg-white text-pink hover:bg-pink-200 hover:border-pink hover:text-white'
   return props.outline ? outlineClasses : baseClasses
 })
@@ -153,10 +180,11 @@ const buttonType = computed(() => {
   else
     return 'button'
 })
+
 // To get the injected content from plugin initialization
 // TODO: Make the other props available as well
-const injectedContent = inject('content') as string
-const contentToBoost = injectedContent ?? props.content
+// const injectedContent = inject('content') as string
+// const contentToBoost = injectedContent ?? props.content
 const boost = async () => {
   $q.loading.show({
     // delay: 400 // ms
@@ -174,7 +202,7 @@ const boost = async () => {
         content: contentTxid,
         difficulty: difficulty.value,
         value: totalPriceInSatoshis.value,
-        tag: props.tag,
+        tag: tag.value,
       })
       if (props.onSuccess)
         props.onSuccess({ txid: contentTxid },)

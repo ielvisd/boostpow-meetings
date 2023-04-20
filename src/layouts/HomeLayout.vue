@@ -1,42 +1,39 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
-      <q-toolbar>
-        <q-btn
-          class="text-white"
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
+      <q-toolbar class="bg-pink-600">
+        <!-- <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" /> -->
 
         <q-toolbar-title class="text-white antebBold flex items-center">
-          <i class="fa-solid fa-feather-pointed"></i>
-          <p text-base md:text-xl m-0 ml-2 pt-1>The POWCO Dev Show</p>
+          <i class="fa-solid fa-volcano"></i>
+          <RouterLink class="text-white no-underline" to="/">
+            <div class="flex flex-col items-start justify-center">
+              <div class="flex flex-row justify-center">
+                <!-- <img src="../../public/icons/favicon-16x16.png" alt="logo" class="h-8"> -->
+                <div class="text-h6">The POWCO Show</div>
+
+              </div>
+
+              <div class="text-caption">POWCO show episodes ranked by Boost Proof of Work</div>
+            </div>
+          </RouterLink>
         </q-toolbar-title>
+
         <DarkSwitcher />
 
         <q-tabs v-if="$q.platform.is.desktop" antebBold v-model="tab">
           <q-route-tab to="/" exact name="home" label="Home" />
         </q-tabs>
         <div flex items-center justify-center>
-          <div
-            antebBold
-            mr-4
-            text-xs
-            v-if="relayUserStore && relayUserStore.paymail"
-          >
+          <div antebBold mr-4 text-xs v-if="relayUserStore && relayUserStore.paymail">
             <p m-0>Welcome {{ relayUserStore.paymail }}</p>
           </div>
-          <button
-            class="ml-auto text-xs bg-purple-400 my-2 text-black rounded-xl px-2 py-1 font-bold uppercase cursor-pointer"
-            @click="handleAuthClick()"
-          >
+          <button class="ml-auto text-xs bg-white my-2 text-black rounded-xl px-2 py-1 font-bold uppercase cursor-pointer"
+            @click="handleAuthClick()">
             {{ relayUserStore && relayUserStore.paymail ? "Logout" : "Login" }}
           </button>
         </div>
+
       </q-toolbar>
     </q-header>
 
@@ -48,12 +45,7 @@
 
         <q-item-label antebBold header> Essential Links </q-item-label>
         <!-- Navigation -->
-        <EssentialLink
-          antebBold
-          v-for="link in essentialLinks"
-          :key="link.title"
-          v-bind="link"
-        />
+        <EssentialLink antebBold v-for="link in essentialLinks" :key="link.title" v-bind="link" />
       </q-list>
     </q-drawer>
 
@@ -75,49 +67,32 @@
 </template>
 
 <script>
-import EssentialLink from "components/EssentialLink.vue";
-import DarkSwitcher from "components/DarkSwitcher.vue";
-import { useQuasar } from "quasar";
+import EssentialLink from 'components/EssentialLink.vue';
+import DarkSwitcher from 'components/DarkSwitcher.vue';
+import { useQuasar } from 'quasar';
+import { RouterLink } from 'vue-router'
 
 const linksList = [
   {
-    title: "POWCO",
-    caption: "Proof of Work Cooperative",
-    icon: "🦌",
-    link: "https://pow.co",
-  },
-  {
-    title: "AskBitcoin",
-    caption: "AskBitcoin",
-    icon: "🧠",
-    link: "https://askbitcoin.com",
-  },
-  {
-    title: "POWCO Development",
-    caption: "Improve POWCO properties and earn satoshis",
-    icon: "👷‍♂️",
-    link: "https://powco.dev",
-  },
-  {
-    title: "POWStream",
-    caption: "Watch & boost",
-    icon: "🍿",
-    link: "https://powstream.com",
+    title: 'The Proof of Work Company',
+    caption: 'A post-hyperbitcoinization social network',
+    icon: '🚀',
+    link: 'https://pow.co',
   },
 ];
 
-import { defineComponent, ref } from "vue";
-import { useRelayUserStore } from "../stores/relayUser.js";
+import { defineComponent, ref } from 'vue';
+import { useRelayUserStore } from '../stores/relayUser.js';
 
 export default defineComponent({
-  name: "HomeLayout",
+  name: 'HomeLayout',
 
   components: {
     EssentialLink,
     DarkSwitcher,
   },
 
-  data() {
+  data () {
     const relayUserStore = useRelayUserStore();
 
     return {
@@ -125,26 +100,26 @@ export default defineComponent({
       splitterModel: ref(20),
     };
   },
-  async mounted() {
+  async mounted () {
     const $q = useQuasar();
 
     $q.dark.set(true);
   },
   computed: {
-    loginText() {
+    loginText () {
       if (useRelayUserStore.paymail) return useRelayUserStore.paymail;
-      else return "Login";
+      else return 'Login';
     },
   },
   watch: {
     // whenever question changes, this function will run
-    paymail(newPaymail, oldPaymail) {
-      if (newPaymail.includes("?")) this.loginText;
+    paymail (newPaymail, oldPaymail) {
+      if (newPaymail.includes('?')) this.loginText;
       else this.loginText;
     },
   },
   methods: {
-    handleAuthClick() {
+    handleAuthClick () {
       const relayUserStore = useRelayUserStore();
 
       if (relayUserStore.paymail) relayUserStore.logout();
@@ -152,7 +127,7 @@ export default defineComponent({
     },
   },
 
-  setup() {
+  setup () {
     const $q = useQuasar();
 
     $q.platform.is.mobile;
@@ -160,28 +135,13 @@ export default defineComponent({
     const leftDrawerOpen = ref(false);
 
     return {
-      tab: ref("/"),
+      tab: ref('/'),
       essentialLinks: linksList,
       leftDrawerOpen,
-      toggleLeftDrawer() {
+      toggleLeftDrawer () {
         leftDrawerOpen.value = !leftDrawerOpen.value;
       },
     };
   },
 });
 </script>
-
-<style scoped>
-.bgImage {
-  background-image: url("../assets/goplandiaBg.webp");
-  background-size: cover;
-  background-position: 50% 75%;
-}
-
-.bgLogo {
-  background-image: url("../assets/gopniklogo.png");
-  background-size: 125% auto;
-  background-repeat: no-repeat;
-  background-position: 50% 50%;
-}
-</style>

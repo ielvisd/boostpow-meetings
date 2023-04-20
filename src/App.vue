@@ -2,21 +2,28 @@
   <router-view />
 </template>
 
-<script>
-import { defineComponent } from 'vue'
-import { inject } from 'vue';
+<script setup lang="ts">
+import { provideApolloClient } from '@vue/apollo-composable';
+import {
+  ApolloClient,
+  InMemoryCache,
+  createHttpLink,
+} from '@apollo/client/core';
 
-export default defineComponent({
-  name: 'App',
-  data () {
-    return {
-    };
-  },
-  setup () {
-    const plausible = inject('plausible');
-    return {
-      plausible,
-    };
-  },
-})
+// HTTP connection to the API
+const httpLink = createHttpLink({
+  // You should use an absolute URL here
+  uri: 'https://graphql.relayx.com/',
+});
+
+// Cache implementation
+const cache = new InMemoryCache();
+
+// Create the apollo client
+const apolloClient = new ApolloClient({
+  link: httpLink,
+  cache,
+});
+
+provideApolloClient(apolloClient);
 </script>
