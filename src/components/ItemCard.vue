@@ -24,7 +24,7 @@
               <p class="w-1/2 border-2 border-red-500" border-2 border-red-400>Video created at: {{ videoCreationDate
               }}</p>
 
-              <BoostButton :exchangeRate="exchangeRate"
+              <BoostButton
                 :content="props.video?.contentDetails?.videoPublishedAt ? `https://powco.show/${props.video.contentDetails.videoPublishedAt}` : `https://powco.show/${props.video.createdAt}`"
                 :onSuccess="onBoostSuccess" class="" size="sm" round :ranks="ranksWithBoost" outline>
                 <p class="text-xl p-0 m-0">🦚</p>

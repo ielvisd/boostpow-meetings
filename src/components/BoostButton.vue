@@ -2,7 +2,7 @@
   <div class="flex flex-col items-center justify-center">
     <component :is="buttonType"
       class="pulse font-medium flex items-center cursor-pointer border shadow hover:shadow-lg focus:outline-none focus:shadow-outline"
-      :href="href" :type="type" :class="btnClasses" @click="() => showSuperBoost = true">
+      :href="href" :type="type" :class="btnClasses" @click="getExchangeRateAndShowSuperBoost">
       <slot />
       <q-dialog v-model="showSuperBoost" position="bottom">
         <q-card class="q-pa-md w-full md:w-md boostpow-dialog text-center">
@@ -112,14 +112,15 @@ const props = defineProps({
 
 const exchangeRate = ref(0)
 
-
-// TODO: Pass this as a prop instead
-onBeforeMount(async () => {
+const getExchangeRateAndShowSuperBoost = async () => {
   const exchangeRateResponse = await api.get('https://api.whatsonchain.com/v1/bsv/main/exchangerate')
 
   // round to w decimals
   exchangeRate.value = exchangeRateResponse.data.rate.toFixed(2)
-})
+  showSuperBoost.value = true
+}
+
+
 
 const defaultPricePerDifficulty = 2.18
 const boostSpeed = ref(50)
