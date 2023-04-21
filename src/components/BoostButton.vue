@@ -53,6 +53,8 @@ import { computed, inject, ref, watch, onBeforeMount } from 'vue'
 import { wrapRelayx } from 'stag-relayx'
 import { useQuasar } from 'quasar'
 import { api } from 'boot/axios'
+import BSocial from 'bsocial';
+import { signOpReturn } from '../utils/bap';
 
 const props = defineProps({
   href: {
@@ -154,8 +156,11 @@ watch([difficulty, boostSpeed], ([newDifficulty, newBoostSpeed], [prevDifficulty
 })
 
 watch([estimatedRank], ([newRank], [prevRank]) => {
-  // If the newRank is larger than the length of the ranks array, then the difficulty should be the last difficulty in the ranks array. Otherwise, the difficulty should be the difficulty of the rank that was selected.
-  difficulty.value = newRank > props.ranks.length ? props.ranks[props.ranks.length - 1].difficulty : props.ranks[newRank - 1].difficulty
+
+  if (difficulty.value && props?.ranks.length) {
+    // If the newRank is larger than the length of the ranks array, then the difficulty should be the last difficulty in the ranks array. Otherwise, the difficulty should be the difficulty of the rank that was selected.
+    difficulty.value = newRank > props?.ranks?.length ? props.ranks[props.ranks.length - 1].difficulty : props.ranks[newRank - 1].difficulty
+  }
 })
 
 const colorClasses = computed(() => {
@@ -190,37 +195,101 @@ const boost = async () => {
   $q.loading.show({
     // delay: 400 // ms
   })
+
+  const bsocial = new BSocial('pow.co');
+
+  const post = bsocial.post();
+
+  post.addText(props.content)
+
+  // if (signWithPaymail) {
+  //   post.addMapData('paymail', paymail)
+  // }
+
+  const hexArrayOps = post.getOps('hex');
+
+  const opReturn = signOpReturn(hexArrayOps)
+
+  console.log('opReturn', opReturn)
   // Get the txid by removing the utxo from the token contract
-  const contentTxid = props?.content.substring(0, props?.content.indexOf('_'));
+  // const contentTxid = props?.content.substring(0, props?.content.indexOf('_'));
   const promise = new Promise(async (resolve, reject) => {
     try {
+
+      // Make a post with the URL if a txid is not provided
       // @ts-expect-error
       const stag = wrapRelayx(relayone)
       if (props.onSending)
         props.onSending()
 
-      await stag.boost.buy({
-        content: contentTxid,
-        difficulty: difficulty.value,
-        value: totalPriceInSatoshis.value,
-        tag: tag.value,
-      })
-      if (props.onSuccess)
-        props.onSuccess({ txid: contentTxid },)
-      // @ts-expect-error
-      relayone
-        .send({
-          currency: 'BSV',
-          amount: devFee.value * 1e-8,
-          to: '15etMzuXHaEFuoaKCt5gw16LYGrLX7iKKj', // ielvis Twetch address for testing
-        })
-        .then((result) => {
-          resolve(result)
-        })
-        .catch((error) => {
-          console.error('relayone.send.reward.error', error)
-          reject(error)
-        })
+      const send = {
+        to: 'ielvis@relayx.io',
+        amount: 0.000001,
+        currency: 'BSV',
+        opReturn
+      }
+
+      try {
+        let resp: any = await stag.relayone!.send(send)
+        // toast('Success!', {
+        //   icon: '✅',
+        //   style: {
+        //   borderRadius: '10px',
+        //   background: '#333',
+        //   color: '#fff',
+        //   },
+        // });
+        console.log('relayx.response', resp)
+        await api.post('https://b.map.sv/ingest', {
+          rawTx: resp.rawTx
+        });
+        // router.push(`/${resp.txid}`)
+      } catch (error) {
+        console.log(error)
+        if (stag.relayone!.errors.isLowFunds(error)) {
+          //   toast('Error! Too Low Funds', {
+          //     icon: '🐛',
+          //     style: {
+          //     borderRadius: '10px',
+          //     background: '#333',
+          //     color: '#fff',
+          //     },
+          // });
+        } else {
+          // toast('Error!', {
+          //   icon: '🐛',
+          //   style: {
+          //   borderRadius: '10px',
+          //   background: '#333',
+          //   color: '#fff',
+          //   },
+          // });
+        }
+      }
+
+      // await stag.boost.buy({
+      //   content: props.content,
+      //   difficulty: difficulty.value,
+      //   value: totalPriceInSatoshis.value,
+      //   tag: tag.value,
+      // })
+
+      // if (props.onSuccess)
+      //   props.onSuccess({ txid: contentTxid },)
+      // // @ts-expect-error
+      // relayone
+      //   .send({
+      //     currency: 'BSV',
+      //     amount: devFee.value * 1e-8,
+      //     to: '15etMzuXHaEFuoaKCt5gw16LYGrLX7iKKj', // ielvis Twetch address for testing
+      //   })
+      //   .then((result) => {
+      //     resolve(result)
+      //   })
+      //   .catch((error) => {
+      //     console.error('relayone.send.reward.error', error)
+      //     reject(error)
+      //   })
     }
     catch (error) {
       console.error('relayx', error)

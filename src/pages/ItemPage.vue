@@ -55,12 +55,7 @@ onBeforeMount(async () => {
   for (let index = 0; index < relayUserStore.powcoVideos.length; index++) {
     const video = relayUserStore.powcoVideos[index];
 
-    console.log('current video: ', video)
-
-
-
     if (params.recipeTitle === video?.createdAt || params.recipeTitle === video?.snippet?.publishedAt) {
-      console.log('video is: ', video)
       currentRecipe.value = video
       videoIndex.value = index
       break
