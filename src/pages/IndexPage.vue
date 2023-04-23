@@ -1,10 +1,6 @@
 <template>
   <q-page class="px-4 flex flex-col justify-start items-center mx-auto w-full">
     <div class="q-pa-md flex justify-center items-center w-full">
-      <!-- The total number of videos in the right hand corner -->
-      <p class="text-2xl font-bold absolute right-0 top-0 mr-4 mt-4" v-if="relayUserStore.powcoVideos?.length">
-        <span class="text-2xl font-bold">{{ numberOfVideos }}</span> videos
-      </p>
 
       <div class="w-full flex flex-col items-center justify-center">
         <h1 class="text-4xl font-bold mb-4">The POWCO Show</h1>
@@ -57,9 +53,11 @@ const numberOfVideos = computed(() =>
 );
 
 const pageCount = computed(() => {
-  const items = relayUserStore.powcoVideos?.length;
-  if (!items) return 0;
-  return Math.ceil(items / pageSize.value);
+  if (!relayUserStore?.powcoVideos) return 0;
+  const items = relayUserStore?.powcoVideos?.filter((video) =>
+    video?.kind || video?.media_info
+  );;
+  return Math.ceil(items.length / pageSize.value);
 });
 
 const slicedVideos = computed(() => {
