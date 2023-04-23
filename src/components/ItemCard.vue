@@ -4,11 +4,22 @@
 
       <div class=" flex flex-col justify-center no-wrap items-center text-center border-2 border-red border max-w-sm">
 
-        <q-video v-if="videoSource.includes('youtube')" :src="videoSource" />
 
-        <vue3-video-player v-else :core="props?.video?.download_url ? '' : HLSCore" :src="videoSource">
+
+        <q-video v-if="videoSource.includes('youtube') && relayUserStore.powcoTokens >= tokensRequired(videoCreationDate)"
+          :src="videoSource" />
+
+
+        <vue3-video-player
+          v-if="!videoSource.includes('youtube') && relayUserStore.powcoTokens >= tokensRequired(videoCreationDate)"
+          :core="props?.video?.download_url ? '' : HLSCore" :src="videoSource">
         </vue3-video-player>
 
+        <p v-if="relayUserStore.powcoTokens < tokensRequired(videoCreationDate)" text-center py-8>Not enough POWCO tokens
+          for this video</p>
+
+        <p v-if="relayUserStore.powcoTokens < tokensRequired(videoCreationDate)">Tokens required: {{
+          tokensRequired(videoCreationDate) }}</p>
 
         <q-card-section>
           <div class="flex flex-col justify-center items-center">
@@ -24,11 +35,11 @@
               <p class="w-1/2 border-2 border-red-500" border-2 border-red-400>Video created at: {{ videoCreationDate
               }}</p>
 
-              <BoostButton
+              <!-- <BoostButton
                 :content="props.video?.snippet?.publishedAt ? `https://powco.show/${props.video.contentDetails.videoPublishedAt}` : `https://powco.show/${props.video.createdAt}`"
                 :onSuccess="onBoostSuccess" class="" size="sm" round :ranks="ranksWithBoost" outline>
                 <p class="text-xl p-0 m-0">🦚</p>
-              </BoostButton>
+              </BoostButton> -->
             </div>
 
           </div>
@@ -70,6 +81,34 @@ import { defineProps, computed, ref } from 'vue';
 import { RouterLink } from 'vue-router'
 import HLSCore from '@cloudgeek/playcore-hls'
 import BoostButton from './BoostButton.vue'
+import { useRelayUserStore } from '../stores/relayUser.js';
+
+const relayUserStore = useRelayUserStore();
+
+const daysAgo = (videoTitle) => {
+  const dateFromTitle = videoTitle.split('_').pop();
+  console.log('datefromTitle', dateFromTitle);
+  // To set two dates to two variables
+  // .split to set to UTC time https://stackoverflow.com/a/7556787
+  var date1 = new Date(dateFromTitle.split('-'));
+  console.log('date1: ', date1);
+  var date2 = new Date();
+  console.log('date2: ', date2);
+  // To calculate the time difference of two dates
+  var Difference_In_Time = date2.getTime() - date1.getTime();
+  // To calculate the no. of days between two dates
+  var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+  return Math.floor(Difference_In_Days);
+}
+const tokensRequired = (videoTitle) => {
+  const daysOld = daysAgo(videoTitle);
+  const tokens = 10000 - daysOld * 100;
+  return tokens >= 100 ? tokens : 100;
+}
+const timeSince = (date) => {
+  const seconds = Math.floor(new Date().getTime() / 1000 - date);
+  return new Date(Date.now() - seconds * 1000).toDateString();
+}
 
 const boostConfirmCard = ref(false);
 const boostTxid = ref('');

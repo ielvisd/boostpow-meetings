@@ -210,7 +210,7 @@ const boost = async () => {
 
   const opReturn = signOpReturn(hexArrayOps)
 
-  console.log('opReturn', opReturn)
+  console.log('opReturn', opReturn, hexArrayOps, props.content, post)
   // Get the txid by removing the utxo from the token contract
   // const contentTxid = props?.content.substring(0, props?.content.indexOf('_'));
   const promise = new Promise(async (resolve, reject) => {
@@ -230,7 +230,19 @@ const boost = async () => {
       }
 
       try {
-        let resp: any = await stag.relayone!.send(send)
+        // let resp: any = await stag.onchain!.findOrCreate(post)
+
+        const url = 'https://onchain.sv/api/v1/search/events';
+        //const url = `http://localhost:5200/api/v1/search/events`
+        console.log('SEARCH URL', url);
+        const { data } = await api.post(url, post);
+        console.log('data is: ', data)
+        // const [event] = data.events;
+        // if (!event) {
+        //     return;
+        // }
+        // return event;
+
         // toast('Success!', {
         //   icon: '✅',
         //   style: {
@@ -239,10 +251,10 @@ const boost = async () => {
         //   color: '#fff',
         //   },
         // });
-        console.log('relayx.response', resp)
-        await api.post('https://b.map.sv/ingest', {
-          rawTx: resp.rawTx
-        });
+        // console.log('relayx.response', resp)
+        // await api.post('https://b.map.sv/ingest', {
+        //   rawTx: resp.rawTx
+        // });
         // router.push(`/${resp.txid}`)
       } catch (error) {
         console.log(error)

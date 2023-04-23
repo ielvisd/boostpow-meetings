@@ -10,6 +10,7 @@ export const useRelayUserStore = defineStore({
     returnUrl: null,
     loading: false,
     paymail: null,
+    powcoTokens: null,
     powcoVideos: null,
   }),
   actions: {
@@ -22,6 +23,9 @@ export const useRelayUserStore = defineStore({
 
     async setJigs(ownerAddress) {
       this.loading = true;
+      const powTokenContractID =
+        '93f9f188f93f446f6b2d93b0ff7203f96473e39ad0f58eb02663896b53c4f020_o2';
+      this.loading = true;
 
       // Get the past powco.show episodes from the API
       const response = await api.get('https://tokenmeet.live/api/v1/videos');
@@ -30,9 +34,6 @@ export const useRelayUserStore = defineStore({
       const youtubeResponse = await api.get(
         'https://content-youtube.googleapis.com/youtube/v3/playlistItems?playlistId=PLW2_xGu416tTP4dJwppVNDjrnU-OWpeQr&part=snippet%2CcontentDetails&maxResults=50&key=AIzaSyC9V5yMpbxSIUXlHhwaq3t8HRla_B3H_fk'
       );
-
-      console.log('youtubeResponse is: ', youtubeResponse);
-
       // TODO: Paginate after 50 videos
       const powcoPlaylist = youtubeResponse?.data?.items;
       if (powcoPlaylist) {
@@ -63,14 +64,17 @@ export const useRelayUserStore = defineStore({
         }
       });
 
-      if (!ownerAddress) return;
+      if (!ownerAddress) {
+        this.loading = false;
+        return;
+      }
 
       const walletJSON = await fetch(
         `https://staging-backend.relayx.com/api/user/balance2/${ownerAddress}`
       );
       const response_data = await walletJSON.json();
-      // const balances = response_data.data.balances
-      const collectibles = response_data.data.collectibles;
+      const balances = response_data.data.balances;
+      this.powcoTokens = balances[powTokenContractID];
       this.loading = false;
     },
     async getRunOwner() {
@@ -109,28 +113,30 @@ export const useRelayUserStore = defineStore({
     combineBoostedRecipes(boostedRecipes) {
       // Loop through powcoVideos and if a recipe is in the boostedRecipes then combine the two.
       // The boostedRecipes are in powcoVideos but they have a special property called 'difficulty' which is how they will be ranked. powcoVideos should be sorted by difficulty.
-      this.powcoVideos = this.powcoVideos.map((video) => {
-        const videoTxid = video.origin?.split('_')[0];
-        // console.log('videoTxid is: ', videoTxid, video);
-        const boostedRecipe = boostedRecipes.find(
-          (recipe) => recipe.content_txid === videoTxid
-        );
-        if (boostedRecipe) {
-          return {
-            ...video,
-            boosted: true,
-            difficulty: boostedRecipe.difficulty,
-          };
-        } else {
-          return {
-            ...video,
-            boosted: false,
-            difficulty: null,
-          };
-        }
-      });
-      // Sort the powcoVideos by difficulty
-      this.powcoVideos.sort((a, b) => b.difficulty - a.difficulty);
+      if (this.powcoVideos?.length) {
+        this.powcoVideos = this.powcoVideos.map((video) => {
+          const videoTxid = video.origin?.split('_')[0];
+          // console.log('videoTxid is: ', videoTxid, video);
+          const boostedRecipe = boostedRecipes.find(
+            (recipe) => recipe.content_txid === videoTxid
+          );
+          if (boostedRecipe) {
+            return {
+              ...video,
+              boosted: true,
+              difficulty: boostedRecipe.difficulty,
+            };
+          } else {
+            return {
+              ...video,
+              boosted: false,
+              difficulty: null,
+            };
+          }
+        });
+        // Sort the powcoVideos by difficulty
+        this.powcoVideos.sort((a, b) => b.difficulty - a.difficulty);
+      }
     },
   },
 });
