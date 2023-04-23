@@ -42,6 +42,22 @@ const videoSrc = computed(() => {
   return `https://www.youtube.com/watch?v=${currentRecipe.value?.contentDetails?.videoId}`
 })
 
+
+const slicedVideos = computed(() => {
+  let videos = relayUserStore.powcoVideos || [];
+
+  // Remove videos without 'kind' or 'media_info' properties
+  videos = videos.filter((video) =>
+
+    video?.kind || video?.media_info
+  );
+
+  // Then sort by difficulty
+  videos?.sort((a, b) => b?.difficulty - a?.difficulty)
+
+  return videos
+});
+
 onBeforeMount(async () => {
   const exchangeRateResponse = await api.get('https://api.whatsonchain.com/v1/bsv/main/exchangerate')
 
@@ -52,8 +68,10 @@ onBeforeMount(async () => {
   await relayUserStore.setJigs()
 
   // Loop through the powcoVideos in relayUserStore and look for a match
-  for (let index = 0; index < relayUserStore.powcoVideos.length; index++) {
-    const video = relayUserStore.powcoVideos[index];
+  for (let index = 0; index < slicedVideos.value.length; index++) {
+    const video = slicedVideos.value[index];
+
+    console.log('video', video)
 
     if (params.recipeTitle === video?.createdAt || params.recipeTitle === video?.snippet?.publishedAt) {
       currentRecipe.value = video

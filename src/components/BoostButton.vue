@@ -196,114 +196,76 @@ const boost = async () => {
     // delay: 400 // ms
   })
 
-  const bsocial = new BSocial('pow.co');
+  // const bsocial = new BSocial('pow.co');
 
-  const post = bsocial.post();
+  // const post = bsocial.post();
 
-  post.addText(props.content)
+  // post.addText(props.content)
 
   // if (signWithPaymail) {
   //   post.addMapData('paymail', paymail)
   // }
 
-  const hexArrayOps = post.getOps('hex');
+  // const hexArrayOps = post.getOps('hex');
 
-  const opReturn = signOpReturn(hexArrayOps)
+  // const opReturn = signOpReturn(hexArrayOps)
 
-  console.log('opReturn', opReturn, hexArrayOps, props.content, post)
+  // console.log('opReturn', opReturn, hexArrayOps, props.content, post)
   // Get the txid by removing the utxo from the token contract
   // const contentTxid = props?.content.substring(0, props?.content.indexOf('_'));
   const promise = new Promise(async (resolve, reject) => {
-    try {
+    // Make a post with the URL if a txid is not provided
+    // @ts-expect-error
+    const stag = wrapRelayx(relayone)
 
-      // Make a post with the URL if a txid is not provided
-      // @ts-expect-error
-      const stag = wrapRelayx(relayone)
+    try {
       if (props.onSending)
         props.onSending()
 
-      const send = {
-        to: 'ielvis@relayx.io',
-        amount: 0.000001,
-        currency: 'BSV',
-        opReturn
-      }
-
-      try {
-        // let resp: any = await stag.onchain!.findOrCreate(post)
-
-        const url = 'https://onchain.sv/api/v1/search/events';
-        //const url = `http://localhost:5200/api/v1/search/events`
-        console.log('SEARCH URL', url);
-        const { data } = await api.post(url, post);
-        console.log('data is: ', data)
-        // const [event] = data.events;
-        // if (!event) {
-        //     return;
-        // }
-        // return event;
-
-        // toast('Success!', {
-        //   icon: '✅',
-        //   style: {
-        //   borderRadius: '10px',
-        //   background: '#333',
-        //   color: '#fff',
-        //   },
-        // });
-        // console.log('relayx.response', resp)
-        // await api.post('https://b.map.sv/ingest', {
-        //   rawTx: resp.rawTx
-        // });
-        // router.push(`/${resp.txid}`)
-      } catch (error) {
-        console.log(error)
-        if (stag.relayone!.errors.isLowFunds(error)) {
-          //   toast('Error! Too Low Funds', {
-          //     icon: '🐛',
-          //     style: {
-          //     borderRadius: '10px',
-          //     background: '#333',
-          //     color: '#fff',
-          //     },
-          // });
-        } else {
-          // toast('Error!', {
-          //   icon: '🐛',
-          //   style: {
-          //   borderRadius: '10px',
-          //   background: '#333',
-          //   color: '#fff',
-          //   },
-          // });
+      const [result, isNew] = await stag.onchain.findOrCreate({
+        where: {
+          app: 'pow.co',
+          type: 'url',
+          content: {
+            url: props.content
+          }
+        },
+        defaults: {
+          app: 'pow.co',
+          type: 'url',
+          content: {
+            url: props.content
+          }
         }
-      }
+      })
 
-      // await stag.boost.buy({
-      //   content: props.content,
-      //   difficulty: difficulty.value,
-      //   value: totalPriceInSatoshis.value,
-      //   tag: tag.value,
-      // })
+      console.log('result', result, isNew)
 
-      // if (props.onSuccess)
-      //   props.onSuccess({ txid: contentTxid },)
-      // // @ts-expect-error
-      // relayone
-      //   .send({
-      //     currency: 'BSV',
-      //     amount: devFee.value * 1e-8,
-      //     to: '15etMzuXHaEFuoaKCt5gw16LYGrLX7iKKj', // ielvis Twetch address for testing
-      //   })
-      //   .then((result) => {
-      //     resolve(result)
-      //   })
-      //   .catch((error) => {
-      //     console.error('relayone.send.reward.error', error)
-      //     reject(error)
-      //   })
-    }
-    catch (error) {
+
+      await stag.boost.buy({
+        content: result.txid,
+        difficulty: difficulty.value,
+        value: totalPriceInSatoshis.value,
+        tag: tag.value,
+      })
+
+      if (props.onSuccess)
+        props.onSuccess({ txid: result.txid },)
+      // @ts-expect-error
+      relayone
+        .send({
+          currency: 'BSV',
+          amount: devFee.value * 1e-8,
+          to: '15etMzuXHaEFuoaKCt5gw16LYGrLX7iKKj', // ielvis Twetch address for testing
+        })
+        .then((result) => {
+          resolve(result)
+        })
+        .catch((error) => {
+          console.error('relayone.send.reward.error', error)
+          reject(error)
+        })
+    } catch (error) {
       console.error('relayx', error)
       $q.loading.hide()
       if (props.onError) {
@@ -311,10 +273,17 @@ const boost = async () => {
         props.onError(error)
         reject(error)
       }
+      if (stag.relayone!.errors.isLowFunds(error)) {
+        $q.loading.hide()
+        props.onError(error)
+        reject(error)
+      }
     }
   })
+
   if (props.onClick)
     props.onClick(promise)
+
 }
 </script>
 

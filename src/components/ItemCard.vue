@@ -35,11 +35,11 @@
               <p class="w-1/2 border-2 border-red-500" border-2 border-red-400>Video created at: {{ videoCreationDate
               }}</p>
 
-              <!-- <BoostButton
+              <BoostButton
                 :content="props.video?.snippet?.publishedAt ? `https://powco.show/${props.video.contentDetails.videoPublishedAt}` : `https://powco.show/${props.video.createdAt}`"
                 :onSuccess="onBoostSuccess" class="" size="sm" round :ranks="ranksWithBoost" outline>
                 <p class="text-xl p-0 m-0">🦚</p>
-              </BoostButton> -->
+              </BoostButton>
             </div>
 
           </div>
@@ -82,24 +82,29 @@ import { RouterLink } from 'vue-router'
 import HLSCore from '@cloudgeek/playcore-hls'
 import BoostButton from './BoostButton.vue'
 import { useRelayUserStore } from '../stores/relayUser.js';
+import { useQuasar } from 'quasar'
 
 const relayUserStore = useRelayUserStore();
+const $q = useQuasar()
 
 const daysAgo = (videoTitle) => {
   const dateFromTitle = videoTitle.split('_').pop();
-  console.log('datefromTitle', dateFromTitle);
   // To set two dates to two variables
   // .split to set to UTC time https://stackoverflow.com/a/7556787
   var date1 = new Date(dateFromTitle.split('-'));
-  console.log('date1: ', date1);
   var date2 = new Date();
-  console.log('date2: ', date2);
   // To calculate the time difference of two dates
   var Difference_In_Time = date2.getTime() - date1.getTime();
   // To calculate the no. of days between two dates
   var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
   return Math.floor(Difference_In_Days);
 }
+
+const onBoostSuccess = (txid) => {
+  console.log('hide')
+  $q.loading.hide()
+}
+
 const tokensRequired = (videoTitle) => {
   const daysOld = daysAgo(videoTitle);
   const tokens = 10000 - daysOld * 100;
