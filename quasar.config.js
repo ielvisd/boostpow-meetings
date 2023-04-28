@@ -65,7 +65,7 @@ module.exports = configure(function (ctx) {
       },
 
       // transpile: false,
-      publicPath: '/show',
+      // publicPath: '/',
 
       // Add dependencies for transpiling with Babel (Array of string/regex)
       // (from node_modules, which are by default not transpiled).
