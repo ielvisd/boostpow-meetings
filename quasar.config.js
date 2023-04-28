@@ -65,7 +65,7 @@ module.exports = configure(function (ctx) {
       },
 
       // transpile: false,
-      // publicPath: '/',
+      publicPath: '/show',
 
       // Add dependencies for transpiling with Babel (Array of string/regex)
       // (from node_modules, which are by default not transpiled).
@@ -221,7 +221,7 @@ module.exports = configure(function (ctx) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'webpack-ceboruco',
+        appId: 'powco-show',
       },
 
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain
