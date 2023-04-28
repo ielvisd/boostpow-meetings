@@ -64,16 +64,14 @@ onBeforeMount(async () => {
   // round to w decimals
   exchangeRate.value = exchangeRateResponse.data.rate.toFixed(2)
 
-  console.log('params are: ', params);
   await relayUserStore.setJigs()
 
   // Loop through the powcoVideos in relayUserStore and look for a match
   for (let index = 0; index < slicedVideos.value.length; index++) {
     const video = slicedVideos.value[index];
 
-    console.log('video', video)
 
-    if (params.recipeTitle === video?.createdAt || params.recipeTitle === video?.snippet?.publishedAt) {
+    if (params.recipeTitle === video?.createdAt || params.recipeTitle === video?.contentDetails?.videoPublishedAt) {
       currentRecipe.value = video
       videoIndex.value = index
       break
