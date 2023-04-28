@@ -155,13 +155,17 @@ onBeforeMount(async () => {
   exchangeRate.value = exchangeRateResponse.data.rate.toFixed(2)
 })
 
+// tag = 'powco-show'
+const powcoShowTagString = '706f77636f2d73686f77'
 
 onMounted(async () => {
-  const { data: boost_rankings } = await api.get(`https://pow.co/api/v1/boost/rankings?start_date=${dateModel.value.startDate}&tag=6c61666f6e64616465656c6365626f7275636f`)
+  const { data: boost_rankings } = await api.get(`https://pow.co/api/v1/boost/rankings?start_date=${dateModel.value.startDate}&tag=${powcoShowTagString}`)
+  console.log('boost_rankings', boost_rankings)
 
   // Call setJigs to load the videos
   await relayUserStore.setJigs()
-  relayUserStore.combineBoostedRecipes(boost_rankings.rankings)
+  console.log('boost_rankings.rankings', boost_rankings.rankings)
+  relayUserStore.combineBoostedContent(boost_rankings.rankings)
 
   // console.log('boost_rankings', boost_rankings)
 });

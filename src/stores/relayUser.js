@@ -22,10 +22,12 @@ export const useRelayUserStore = defineStore({
     },
 
     async setJigs(ownerAddress) {
+      console.log('this.loading', this.loading);
       this.loading = true;
+      console.log('this.loading', this.loading);
+
       const powTokenContractID =
         '93f9f188f93f446f6b2d93b0ff7203f96473e39ad0f58eb02663896b53c4f020_o2';
-      this.loading = true;
 
       // Get the past powco.show episodes from the API
       const response = await api.get('https://tokenmeet.live/api/v1/videos');
@@ -46,22 +48,39 @@ export const useRelayUserStore = defineStore({
         this.powcoVideos = [...this.powcoVideos, ...videos];
       }
 
-      // Sort the videos by createdAt or publishedAt, whichever is available
+      // Sort the videos by date first (createdAt or publishedAt, whichever is available). If a video does not have a difficulty property assign it 0. Then sort by difficulty.
       this.powcoVideos.sort((a, b) => {
-        if (a.createdAt && b.createdAt) {
-          return new Date(b.createdAt) - new Date(a.createdAt);
+        const aDate =
+          a?.snippet?.publishedAt ||
+          a?.contentDetails?.publishedAt ||
+          a?.createdAt;
+        const bDate =
+          b?.snippet?.publishedAt ||
+          a?.contentDetails?.publishedAt ||
+          b?.createdAt;
+        if (aDate < bDate) {
+          return 1;
         }
-        if (a.snippet?.publishedAt && b.snippet?.publishedAt) {
-          return (
-            new Date(b.snippet?.publishedAt) - new Date(a.snippet?.publishedAt)
-          );
+        if (aDate > bDate) {
+          return -1;
         }
-        if (a.createdAt && b.snippet?.publishedAt) {
-          return new Date(b.snippet?.publishedAt) - new Date(a.createdAt);
+        return 0;
+      });
+
+      this.powcoVideos.forEach((powcoVideo) => {
+        if (!powcoVideo.difficulty) {
+          powcoVideo.difficulty = 0;
         }
-        if (a.snippet?.publishedAt && b.createdAt) {
-          return new Date(b.createdAt) - new Date(a.snippet?.publishedAt);
+      });
+
+      this.powcoVideos.sort((a, b) => {
+        if (a.difficulty < b.difficulty) {
+          return 1;
         }
+        if (a.difficulty > b.difficulty) {
+          return -1;
+        }
+        return 0;
       });
 
       if (!ownerAddress) {
@@ -74,8 +93,11 @@ export const useRelayUserStore = defineStore({
       );
       const response_data = await walletJSON.json();
       const balances = response_data.data.balances;
+
+      console.log('this.loading', this.loading);
       this.powcoTokens = balances[powTokenContractID];
       this.loading = false;
+      console.log('this.loading', this.loading);
     },
     async getRunOwner() {
       const ownerResponse = await relayone.alpha.run.getOwner();
@@ -110,29 +132,42 @@ export const useRelayUserStore = defineStore({
       // redirect to previous url or default to home page
       // useRouter(this.returnUrl || '/')
     },
-    combineBoostedRecipes(boostedRecipes) {
-      // Loop through powcoVideos and if a recipe is in the boostedRecipes then combine the two.
-      // The boostedRecipes are in powcoVideos but they have a special property called 'difficulty' which is how they will be ranked. powcoVideos should be sorted by difficulty.
-      if (this.powcoVideos?.length) {
-        this.powcoVideos = this.powcoVideos.map((video) => {
-          const videoTxid = video.origin?.split('_')[0];
-          // console.log('videoTxid is: ', videoTxid, video);
-          const boostedRecipe = boostedRecipes.find(
-            (recipe) => recipe.content_txid === videoTxid
+    getContentDate(content) {
+      if (content?.content?.content_json) {
+        // The video date is the last part of the url after the last slash
+        const videoDate = content.content.content_json.url.split('/').pop();
+        return videoDate;
+      } else {
+        return null;
+      }
+    },
+    combineBoostedContent(boostedContent) {
+      console.log('boostedContent', boostedContent);
+      // Loop through the boostedContent, get the content, and add the difficulty to the corresponding
+      // powcoVideos object
+      if (boostedContent) {
+        boostedContent.forEach(async (boostedRecipe) => {
+          console.log('boostedRecipe', boostedRecipe);
+          const boostedRecipeDataResponse = await fetch(
+            `https://pow.co/api/v1/content/${boostedRecipe.content_txid}`
           );
-          if (boostedRecipe) {
-            return {
-              ...video,
-              boosted: true,
-              difficulty: boostedRecipe.difficulty,
-            };
-          } else {
-            return {
-              ...video,
-              boosted: false,
-              difficulty: null,
-            };
-          }
+          const boostedRecipeData = await boostedRecipeDataResponse.json();
+
+          const contentDate = this.getContentDate(boostedRecipeData);
+          // // Loop through the powcoVideos and add the difficulty to the corresponding powcoVideos object
+          this.powcoVideos.forEach((powcoVideo) => {
+            if (
+              powcoVideo.snippet?.publishedAt === contentDate ||
+              powcoVideo.contentDetails?.videoPublishedAt === contentDate ||
+              powcoVideo.createdAt === contentDate
+            ) {
+              // The difficulty is the sum of the difficulty of every item in the tags array
+              powcoVideo.difficulty = boostedRecipeData.tags.reduce(
+                (a, b) => a + b.difficulty,
+                0
+              );
+            }
+          });
         });
         // Sort the powcoVideos by difficulty
         this.powcoVideos.sort((a, b) => b.difficulty - a.difficulty);

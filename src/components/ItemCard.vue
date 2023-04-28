@@ -2,10 +2,10 @@
   <q-card mt-4 md:mt-8>
     <div>
 
+      <div v-if="props.video.difficulty" class="absolute top-0 right-0 bg-white text-black p-2 flex items-center">
+        <span class="pr-1">⛏️</span>{{ video.difficulty.toFixed(4) }}
+      </div>
       <div class=" flex flex-col justify-center no-wrap items-center text-center border-2 border-red border max-w-sm">
-
-
-
         <q-video v-if="videoSource.includes('youtube') && relayUserStore.powcoTokens >= tokensRequired(videoCreationDate)"
           :src="videoSource" />
 
