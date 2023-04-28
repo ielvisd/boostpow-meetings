@@ -15,11 +15,13 @@
           :core="props?.video?.download_url ? '' : HLSCore" :src="videoSource">
         </vue3-video-player>
 
-        <p v-if="relayUserStore.powcoTokens < tokensRequired(videoCreationDate)" text-center py-8>Not enough POWCO tokens
+        <p v-if="!relayUserStore?.powcoTokens || relayUserStore.powcoTokens < tokensRequired(videoCreationDate)"
+          text-center py-8>Not enough POWCO tokens
           for this video</p>
 
-        <p v-if="relayUserStore.powcoTokens < tokensRequired(videoCreationDate)">Tokens required: {{
-          tokensRequired(videoCreationDate) }}</p>
+        <p v-if="!relayUserStore?.powcoTokens || relayUserStore.powcoTokens < tokensRequired(videoCreationDate)">Tokens
+          required: {{
+            tokensRequired(videoCreationDate) }}</p>
 
         <q-card-section>
           <div class="flex flex-col justify-center items-center">
