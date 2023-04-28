@@ -22,9 +22,7 @@ export const useRelayUserStore = defineStore({
     },
 
     async setJigs(ownerAddress) {
-      console.log('this.loading', this.loading);
       this.loading = true;
-      console.log('this.loading', this.loading);
 
       const powTokenContractID =
         '93f9f188f93f446f6b2d93b0ff7203f96473e39ad0f58eb02663896b53c4f020_o2';
@@ -94,10 +92,8 @@ export const useRelayUserStore = defineStore({
       const response_data = await walletJSON.json();
       const balances = response_data.data.balances;
 
-      console.log('this.loading', this.loading);
       this.powcoTokens = balances[powTokenContractID];
       this.loading = false;
-      console.log('this.loading', this.loading);
     },
     async getRunOwner() {
       const ownerResponse = await relayone.alpha.run.getOwner();
@@ -142,12 +138,10 @@ export const useRelayUserStore = defineStore({
       }
     },
     combineBoostedContent(boostedContent) {
-      console.log('boostedContent', boostedContent);
       // Loop through the boostedContent, get the content, and add the difficulty to the corresponding
       // powcoVideos object
       if (boostedContent) {
         boostedContent.forEach(async (boostedRecipe) => {
-          console.log('boostedRecipe', boostedRecipe);
           const boostedRecipeDataResponse = await fetch(
             `https://pow.co/api/v1/content/${boostedRecipe.content_txid}`
           );

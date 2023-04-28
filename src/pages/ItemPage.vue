@@ -112,7 +112,6 @@ onBeforeMount(async () => {
   // Loop through the powcoVideos in relayUserStore and look for a match
   for (let index = 0; index < slicedVideos.value.length; index++) {
     const video = slicedVideos.value[index];
-    console.log('video', video)
 
     if (params.recipeTitle === video?.createdAt || params.recipeTitle === video?.contentDetails?.videoPublishedAt || params.recipeTitle === video?.snippet?.publishedAt) {
       currentRecipe.value = video
@@ -126,7 +125,6 @@ const powcoShowTagString = '706f77636f2d73686f77'
 
 onMounted(async () => {
   const { data: boost_rankings } = await api.get(`https://pow.co/api/v1/boost/rankings?start_date=${dateModel.value.startDate}&tag=${powcoShowTagString}`)
-  console.log('boost_rankings', boost_rankings)
   // Call setJigs to load the videos
   await relayUserStore.setJigs()
   relayUserStore.combineBoostedContent(boost_rankings.rankings)

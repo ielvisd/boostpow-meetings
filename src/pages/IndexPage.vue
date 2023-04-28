@@ -160,11 +160,9 @@ const powcoShowTagString = '706f77636f2d73686f77'
 
 onMounted(async () => {
   const { data: boost_rankings } = await api.get(`https://pow.co/api/v1/boost/rankings?start_date=${dateModel.value.startDate}&tag=${powcoShowTagString}`)
-  console.log('boost_rankings', boost_rankings)
 
   // Call setJigs to load the videos
   await relayUserStore.setJigs()
-  console.log('boost_rankings.rankings', boost_rankings.rankings)
   relayUserStore.combineBoostedContent(boost_rankings.rankings)
 
   // console.log('boost_rankings', boost_rankings)

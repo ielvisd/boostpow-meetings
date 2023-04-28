@@ -1,7 +1,6 @@
 <template>
   <q-card mt-4 md:mt-8>
     <div>
-
       <div v-if="props.video.difficulty" class="absolute top-0 right-0 bg-white text-black p-2 flex items-center">
         <span class="pr-1">⛏️</span>{{ video.difficulty.toFixed(4) }}
       </div>
@@ -103,7 +102,6 @@ const daysAgo = (videoTitle) => {
 }
 
 const onBoostSuccess = (txid) => {
-  console.log('hide')
   $q.loading.hide()
 }
 
@@ -129,7 +127,6 @@ const videoSource = computed(() => {
 
 
   if (!props?.video?.download_url) {
-    console.log('props.video', props.video)
     return props.video?.playback?.hls_url
     // return 'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8'
   }
@@ -150,8 +147,6 @@ const videoCreationDate = computed(() => {
   // return 'No Date' if props.video.createdAt is undefined
 
   if (!props?.video?.createdAt) {
-    console.log('props.snippet', props.video.snippet)
-    console.log('props?.video.snippet?.publishedAt', props?.video.snippet?.publishedAt)
 
     const videoDate = new Date(props?.video?.snippet?.publishedAt);
     return videoDate.toLocaleDateString();
