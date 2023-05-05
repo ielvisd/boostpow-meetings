@@ -48,14 +48,8 @@ export const useRelayUserStore = defineStore({
 
       // Sort the videos by date first (createdAt or publishedAt, whichever is available). If a video does not have a difficulty property assign it 0. Then sort by difficulty.
       this.powcoVideos.sort((a, b) => {
-        const aDate =
-          a?.snippet?.publishedAt ||
-          a?.contentDetails?.publishedAt ||
-          a?.createdAt;
-        const bDate =
-          b?.snippet?.publishedAt ||
-          a?.contentDetails?.publishedAt ||
-          b?.createdAt;
+        const aDate = a?.createdAt || a?.snippet.title;
+        const bDate = b?.createdAt || b?.snippet.title;
         if (aDate < bDate) {
           return 1;
         }
