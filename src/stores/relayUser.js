@@ -127,6 +127,10 @@ export const useRelayUserStore = defineStore({
         // The video date is the last part of the url after the last slash
         const videoDate = content.content.content_json.url.split('/').pop();
         return videoDate;
+      } else if (content?.snippet?.title) {
+        // The video date is the last part of the title after the last dash
+        const videoDate = content.snippet.title;
+        return videoDate;
       } else {
         return null;
       }
@@ -145,8 +149,7 @@ export const useRelayUserStore = defineStore({
           // // Loop through the powcoVideos and add the difficulty to the corresponding powcoVideos object
           this.powcoVideos.forEach((powcoVideo) => {
             if (
-              powcoVideo.snippet?.publishedAt === contentDate ||
-              powcoVideo.contentDetails?.videoPublishedAt === contentDate ||
+              powcoVideo.snippet?.title === contentDate ||
               powcoVideo.createdAt === contentDate
             ) {
               // The difficulty is the sum of the difficulty of every item in the tags array

@@ -37,7 +37,7 @@
               }}</p>
 
               <BoostButton
-                :content="props?.video?.snippet?.title ? `https://powco.show/${props?.video?.snipppet?.title}` : `https://powco.show/${props.video.createdAt}`"
+                :content="props?.video?.snippet?.title ? `https://powco.show/${props?.video?.snippet?.title}` : `https://powco.show/${props.video.createdAt}`"
                 :onSuccess="onBoostSuccess" class="" size="sm" round :ranks="ranksWithBoost" outline>
                 <p class="text-xl p-0 m-0">🦚</p>
               </BoostButton>
