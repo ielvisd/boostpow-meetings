@@ -113,7 +113,7 @@ onBeforeMount(async () => {
   for (let index = 0; index < slicedVideos.value.length; index++) {
     const video = slicedVideos.value[index];
 
-    if (params.recipeTitle === video?.createdAt || params.recipeTitle === video?.contentDetails?.videoPublishedAt || params.recipeTitle === video?.snippet?.publishedAt) {
+    if (params.recipeTitle === video?.createdAt || params.recipeTitle === video?.snippet?.title) {
       currentRecipe.value = video
       videoIndex.value = index
       break

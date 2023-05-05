@@ -27,7 +27,7 @@
 
             <div class="flex justify-center items-center">
               <RouterLink text-pink-700 w-full text-lg font-bold text-center no-underline mx-auto border-2
-                :to="props?.video?.createdAt ? `/${props.video.createdAt}` : `/${props?.video?.snippet?.publishedAt}`">
+                :to="props?.video?.createdAt ? `/${props.video.createdAt}` : `/${props?.video?.snippet?.title}`">
                 {{ videoCreationDate }}
               </RouterLink>
             </div>
@@ -37,7 +37,7 @@
               }}</p>
 
               <BoostButton
-                :content="props.video?.snippet?.publishedAt ? `https://powco.show/${props.video.contentDetails.videoPublishedAt}` : `https://powco.show/${props.video.createdAt}`"
+                :content="props?.video?.snippet?.title ? `https://powco.show/${props?.video?.snipppet?.title}` : `https://powco.show/${props.video.createdAt}`"
                 :onSuccess="onBoostSuccess" class="" size="sm" round :ranks="ranksWithBoost" outline>
                 <p class="text-xl p-0 m-0">🦚</p>
               </BoostButton>
@@ -146,11 +146,10 @@ const props = defineProps({
 const videoCreationDate = computed(() => {
   // return 'No Date' if props.video.createdAt is undefined
 
-  if (!props?.video?.createdAt) {
-
-    const videoDate = new Date(props?.video?.snippet?.publishedAt);
-    return videoDate.toLocaleDateString();
-    // return props?.video.snippet?.publishedAt;
+  if (props?.video?.snippet?.title) {
+    // Extract the title by taking the last part of the string after the last _
+    const dateFromTitle = props.video.snippet.title.split('_').pop();
+    return new Date(dateFromTitle.split('-')).toLocaleDateString();
   }
 
   const date = new Date(props.video.creation_time);
