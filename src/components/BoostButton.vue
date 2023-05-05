@@ -23,8 +23,8 @@
           </div>
           <div class="mb-4 w-36 mx-auto">
             <label class="block mb-1 font-medium">Difficulty</label>
-            <q-input min=0.0001 step=0.0005 v-model.number="difficulty" outlined type="number" class="rounded-md"
-              :rules="[val => val > 0.00001 || 'Minimum difficulty is 0.00001']" />
+            <q-input min=0.00005 step=0.0005 v-model.number="difficulty" outlined type="number" class="rounded-md"
+              :rules="[val => val > 0.00005 || 'Minimum difficulty is 0.00005']" />
           </div>
           <div class="mb-4">
             <label class="block mb-1 font-medium">Boost Speed {{ boostSpeed }}</label>
