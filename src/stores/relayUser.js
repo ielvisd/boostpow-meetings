@@ -20,7 +20,24 @@ export const useRelayUserStore = defineStore({
     gopUrl(gopBerryTxId) {
       return `https://berry.relayx.com/${gopBerryTxId}`;
     },
+    // A method that converts the video creation date to human readable format
+    videoCreationDate(video) {
+      // return 'No Date' if props.video.createdAt is undefined
+      if (!video) {
+        return 'No Date';
+      }
 
+      if (video.snippet?.title) {
+        // Extract the title by taking the last part of the string after the last _
+        const dateFromTitle = video.snippet.title.split('_').pop();
+        return new Date(dateFromTitle.split('-'));
+      } else if (video.createdAt) {
+        const date = new Date(video.createdAt);
+        return date;
+      } else {
+        return 'No Date';
+      }
+    },
     async setJigs(ownerAddress) {
       this.loading = true;
 
@@ -34,10 +51,19 @@ export const useRelayUserStore = defineStore({
       const youtubeResponse = await api.get(
         'https://content-youtube.googleapis.com/youtube/v3/playlistItems?playlistId=PLW2_xGu416tTP4dJwppVNDjrnU-OWpeQr&part=snippet%2CcontentDetails&maxResults=50&key=AIzaSyC9V5yMpbxSIUXlHhwaq3t8HRla_B3H_fk'
       );
-      // TODO: Paginate after 50 videos
+      // TODO: Hacky way to get the next 50 videos, need to find a better way
+      const youtubeResponse2 = await api.get(
+        'https://content-youtube.googleapis.com/youtube/v3/playlistItems?playlistId=PLW2_xGu416tTP4dJwppVNDjrnU-OWpeQr&part=snippet%2CcontentDetails&maxResults=50&key=AIzaSyC9V5yMpbxSIUXlHhwaq3t8HRla_B3H_fk&pageToken=EAAaBlBUOkNESQ'
+      );
+
       const powcoPlaylist = youtubeResponse?.data?.items;
       if (powcoPlaylist) {
         this.powcoVideos = powcoPlaylist.reverse();
+      }
+
+      const powcoPlaylist2 = youtubeResponse2?.data?.items;
+      if (powcoPlaylist2) {
+        this.powcoVideos = [...this.powcoVideos, ...powcoPlaylist2.reverse()];
       }
 
       if (response && response.data) {
@@ -46,10 +72,11 @@ export const useRelayUserStore = defineStore({
         this.powcoVideos = [...this.powcoVideos, ...videos];
       }
 
-      // Sort the videos by date first (createdAt or publishedAt, whichever is available). If a video does not have a difficulty property assign it 0. Then sort by difficulty.
+      // Sort the videos by date
       this.powcoVideos.sort((a, b) => {
-        const aDate = a?.createdAt || a?.snippet.title;
-        const bDate = b?.createdAt || b?.snippet.title;
+        const aDate = this.videoCreationDate(a);
+        const bDate = this.videoCreationDate(b);
+
         if (aDate < bDate) {
           return 1;
         }

@@ -152,7 +152,7 @@ const videoCreationDate = computed(() => {
     return new Date(dateFromTitle.split('-')).toLocaleDateString();
   }
 
-  const date = new Date(props.video.creation_time);
+  const date = new Date(props.video.createdAt);
   return date.toLocaleDateString();
 });
 
